@@ -39,7 +39,7 @@
   </button>
 </section>
 
-<!-- カテゴリー（ランダム配置） -->
+<!-- カテゴリー（ランダム配置・重なり防止） -->
 <div id="category-container" class="p-2 bg-white shadow relative min-h-[120px]">
   <!-- カテゴリーボタンはJavaScriptで動的に配置されます -->
 </div>
@@ -60,6 +60,16 @@
     { id: 'プライベート', name: 'プライベート', color: 'bg-pink-200 hover:bg-pink-300' }
   ];
 
+  // 衝突検出：2つのボタンが重なっているかチェック
+  function isColliding(pos1, size1, pos2, size2) {
+    return !(
+      pos1.left + size1.width < pos2.left ||
+      pos1.top + size1.height < pos2.top ||
+      pos1.left > pos2.left + size2.width ||
+      pos1.top > pos2.top + size2.height
+    );
+  }
+
   // カテゴリーボタンをランダムに配置する関数
   function randomizeCategories() {
     const container = document.getElementById('category-container');
@@ -68,29 +78,79 @@
     // カテゴリーの配列をシャッフル
     const shuffledCategories = [...categories].sort(() => Math.random() - 0.5);
     
-    // それぞれのカテゴリーに対してランダムな位置を設定
-    shuffledCategories.forEach(category => {
-      // ボタン要素を作成
-      const button = document.createElement('button');
-      button.className = `category-button absolute text-sm px-3 py-1 rounded-full ${category.color}`;
-      button.setAttribute('onclick', `filterCategory('${category.id}')`);
-      button.setAttribute('data-category-btn', category.id);
-      button.textContent = category.name;
+    // 配置済みのボタンの位置とサイズを格納する配列
+    const placedButtons = [];
+    
+    // コンテナのサイズを取得
+    const containerWidth = container.offsetWidth;
+    const containerHeight = 150; // 固定の高さを設定
+    container.style.minHeight = containerHeight + 'px';
+    
+    // 各ボタンのおおよそのサイズ（テキストの長さに応じて調整）
+    const buttonSizes = shuffledCategories.map(category => {
+      return {
+        width: Math.max(category.name.length * 10 + 20, 60), // 文字数に応じた幅 + パディング
+        height: 30
+      };
+    });
+    
+    // ボタンを配置
+    shuffledCategories.forEach((category, index) => {
+      const buttonSize = buttonSizes[index];
+      let position;
+      let attempts = 0;
+      let found = false;
       
-      // ランダムな位置を設定（コンテナ内に収まるようにする）
-      const containerWidth = container.offsetWidth;
-      const containerHeight = container.offsetHeight;
-      const buttonWidth = 80; // ボタンのおおよその幅
-      const buttonHeight = 30; // ボタンのおおよその高さ
+      // 衝突しない位置を見つけるまで試行
+      while (!found && attempts < 100) {
+        attempts++;
+        
+        // ランダムな位置を生成
+        position = {
+          left: Math.random() * (containerWidth - buttonSize.width),
+          top: Math.random() * (containerHeight - buttonSize.height)
+        };
+        
+        // 他のボタンとの衝突をチェック
+        found = true;
+        for (const placedButton of placedButtons) {
+          if (isColliding(position, buttonSize, placedButton.position, placedButton.size)) {
+            found = false;
+            break;
+          }
+        }
+      }
       
-      const leftPos = Math.random() * (containerWidth - buttonWidth);
-      const topPos = Math.random() * (containerHeight - buttonHeight);
-      
-      button.style.left = `${leftPos}px`;
-      button.style.top = `${topPos}px`;
-      
-      // コンテナに追加
-      container.appendChild(button);
+      // 位置が見つかったらボタンを作成
+      if (found) {
+        const button = document.createElement('button');
+        button.className = `category-button absolute text-sm px-3 py-1 rounded-full ${category.color}`;
+        button.setAttribute('onclick', `filterCategory('${category.id}')`);
+        button.setAttribute('data-category-btn', category.id);
+        button.textContent = category.name;
+        
+        button.style.left = `${position.left}px`;
+        button.style.top = `${position.top}px`;
+        
+        container.appendChild(button);
+        
+        // 配置済みボタンリストに追加
+        placedButtons.push({
+          position: position,
+          size: buttonSize
+        });
+      } else {
+        // 100回試行しても位置が見つからない場合は、通常のフローレイアウトでボタンを追加
+        const button = document.createElement('button');
+        button.className = `category-button inline-block text-sm px-3 py-1 rounded-full m-1 ${category.color}`;
+        button.setAttribute('onclick', `filterCategory('${category.id}')`);
+        button.setAttribute('data-category-btn', category.id);
+        button.textContent = category.name;
+        
+        // 絶対位置指定ではなく、通常のフローに追加
+        button.style.position = 'relative';
+        container.appendChild(button);
+      }
     });
   }
   
@@ -109,10 +169,28 @@
       }
     });
     
-    // フィルタリング後にカテゴリーを再配置（オプション）
-    randomizeCategories();
+    // アクティブなカテゴリーを視覚的に強調表示
+    const buttons = document.querySelectorAll('[data-category-btn]');
+    buttons.forEach(btn => {
+      if (btn.getAttribute('data-category-btn') === category) {
+        // すべてボタン以外の場合はスタイルを変更
+        if (category !== 'all') {
+          btn.classList.add('bg-pink-400', 'text-white');
+          btn.classList.remove('bg-pink-200', 'hover:bg-pink-300');
+        }
+      } else if (btn.getAttribute('data-category-btn') === 'all') {
+        // すべてボタンは常に特別なスタイル
+        btn.classList.add('bg-pink-400', 'text-white');
+      } else {
+        // その他のボタンは通常スタイルに戻す
+        btn.classList.remove('bg-pink-400', 'text-white');
+        btn.classList.add('bg-pink-200', 'hover:bg-pink-300');
+      }
+    });
   }
 </script>
+
+
 
 
 <!-- 最新Q&Aリスト -->
