@@ -1,10 +1,10 @@
 from datetime import datetime
 from app.extensions import db
 from sqlalchemy.orm import relationship
-from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Boolean
 
 class Question(db.Model):
     __tablename__ = 'questions'
+    __table_args__ = {'extend_existing': True}  # 既存テーブル再定義を許可
     
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(255), nullable=False)
@@ -17,9 +17,9 @@ class Question(db.Model):
     # 外部キー
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     
-    # リレーションシップ
-    user = relationship("app.models.user.User", back_populates="questions")
-    answers = relationship("app.models.answer.Answer", back_populates="question")
+    # リレーションシップをシンプルに定義（循環参照を避ける）
+    user = relationship("User", foreign_keys=[user_id])
+    answers = relationship("Answer")
     
     def __repr__(self):
         return f'<Question {self.id}: {self.title}>'
