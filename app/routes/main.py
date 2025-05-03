@@ -1,59 +1,23 @@
-from flask import Blueprint, render_template, redirect, url_for
-from app.extensions import db
-from app.models.question import Question
-
-# Blueprintを作成
-bp = Blueprint('main', __name__)
-
-@bp.route('/')
-def index():
-    """トップページ"""
-    # データベースから最新の質問を取得
-    recent_questions = Question.query.filter_by(is_deleted=False).order_by(Question.created_at.desc()).limit(10).all()
-    
-    return render_template('main/index.html', questions=recent_questions)
-
-@bp.route('/about')
-def about():
-    """サイト紹介ページ"""
-    return render_template('main/about.html')
-
-@bp.route('/setup-db')
-def setup_db():
-    """データベーステーブルの作成"""
-    db.create_all()
-    return 'データベーステーブルが作成されました！'
-
 @bp.route('/seed-data')
 def seed_data_route():
     """開発用：ダミーデータを追加"""
     try:
-        # seed_data.pyファイルの内容をインポートして実行
-        from app import create_app, db
+        # ユーザーモデルのインポート
         from app.models.user import User
         from app.models.question import Question, Answer
         from datetime import datetime, timedelta
         import random
         
-        # データベースをクリア
-        db.drop_all()
-        db.create_all()
-        
-        # ダミーユーザーデータ
+        # ダミーユーザーデータ (5人だけにして処理を軽くする)
         dummy_users = [
             {"email": "misaki@example.com", "nickname": "美咲", "display_name": "みなみ", "password_hash": "hashed_password"},
             {"email": "reina@example.com", "nickname": "れいな", "display_name": "れいな", "password_hash": "hashed_password"},
             {"email": "sakura@example.com", "nickname": "さくら", "display_name": "さくら", "password_hash": "hashed_password"},
             {"email": "maria@example.com", "nickname": "まりあ", "display_name": "まりあ", "password_hash": "hashed_password"},
-            {"email": "yukina@example.com", "nickname": "ゆきな", "display_name": "ゆきの", "password_hash": "hashed_password"},
-            {"email": "yuriko@example.com", "nickname": "ゆりこ", "display_name": "ゆりな", "password_hash": "hashed_password"},
-            {"email": "misaki2@example.com", "nickname": "みさき", "display_name": "美咲", "password_hash": "hashed_password"},  
-            {"email": "yukina2@example.com", "nickname": "ゆき", "display_name": "ゆきな", "password_hash": "hashed_password"},
-            {"email": "yuki@example.com", "nickname": "ゆき", "display_name": "ゆき", "password_hash": "hashed_password"},
-            {"email": "mana@example.com", "nickname": "まな", "display_name": "まな", "password_hash": "hashed_password"}
+            {"email": "yukina@example.com", "nickname": "ゆきな", "display_name": "ゆきの", "password_hash": "hashed_password"}
         ]
-
-        # ダミー質問データ
+        
+        # ダミー質問データ (5件だけにして処理を軽くする)
         dummy_questions = [
             {
                 "title": "初めてのキャバクラ勤務、何から準備すれば？",
@@ -81,7 +45,7 @@ def seed_data_route():
                 "category": "身バレ"
             }
         ]
-
+        
         # ユーザーを追加
         users = []
         for user_data in dummy_users:
