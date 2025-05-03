@@ -39,22 +39,81 @@
   </button>
 </section>
 
-<!-- カテゴリー（グリッドレイアウト） -->
-<div class="p-2 bg-white shadow">
-  <div class="grid grid-cols-5 gap-2">
-    <button onclick="filterCategory('all')" class="category-button bg-pink-400 text-white text-sm px-3 py-1 rounded-full text-center" data-category-btn="all">すべて</button>
-    <button onclick="filterCategory('初心者')" class="category-button bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full text-center" data-category-btn="初心者">初心者</button>
-    <button onclick="filterCategory('営業')" class="category-button bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full text-center" data-category-btn="営業">営業</button>
-    <button onclick="filterCategory('出勤')" class="category-button bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full text-center" data-category-btn="出勤">出勤</button>
-    <button onclick="filterCategory('バースデイ')" class="category-button bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full text-center" data-category-btn="バースデイ">バースデイ</button>
-    <button onclick="filterCategory('メンタル')" class="category-button bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full text-center" data-category-btn="メンタル">メンタル</button>
-    <button onclick="filterCategory('身バレ')" class="category-button bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full text-center" data-category-btn="身バレ">身バレ</button>
-    <button onclick="filterCategory('店不満')" class="category-button bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full text-center" data-category-btn="店不満">店への不満</button>
-    <button onclick="filterCategory('美容')" class="category-button bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full text-center" data-category-btn="美容">美容</button>
-    <button onclick="filterCategory('恋愛')" class="category-button bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full text-center" data-category-btn="恋愛">恋愛</button>
-    <button onclick="filterCategory('プライベート')" class="category-button bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full text-center" data-category-btn="プライベート">プライベート</button>
-  </div>
+<!-- カテゴリー（ランダム配置） -->
+<div id="category-container" class="p-2 bg-white shadow relative min-h-[120px]">
+  <!-- カテゴリーボタンはJavaScriptで動的に配置されます -->
 </div>
+
+<script>
+  // カテゴリーのデータ
+  const categories = [
+    { id: 'all', name: 'すべて', color: 'bg-pink-400 text-white' },
+    { id: '初心者', name: '初心者', color: 'bg-pink-200 hover:bg-pink-300' },
+    { id: '営業', name: '営業', color: 'bg-pink-200 hover:bg-pink-300' },
+    { id: '出勤', name: '出勤', color: 'bg-pink-200 hover:bg-pink-300' },
+    { id: 'バースデイ', name: 'バースデイ', color: 'bg-pink-200 hover:bg-pink-300' },
+    { id: 'メンタル', name: 'メンタル', color: 'bg-pink-200 hover:bg-pink-300' },
+    { id: '身バレ', name: '身バレ', color: 'bg-pink-200 hover:bg-pink-300' },
+    { id: '店不満', name: '店への不満', color: 'bg-pink-200 hover:bg-pink-300' },
+    { id: '美容', name: '美容', color: 'bg-pink-200 hover:bg-pink-300' },
+    { id: '恋愛', name: '恋愛', color: 'bg-pink-200 hover:bg-pink-300' },
+    { id: 'プライベート', name: 'プライベート', color: 'bg-pink-200 hover:bg-pink-300' }
+  ];
+
+  // カテゴリーボタンをランダムに配置する関数
+  function randomizeCategories() {
+    const container = document.getElementById('category-container');
+    container.innerHTML = ''; // コンテナをクリア
+    
+    // カテゴリーの配列をシャッフル
+    const shuffledCategories = [...categories].sort(() => Math.random() - 0.5);
+    
+    // それぞれのカテゴリーに対してランダムな位置を設定
+    shuffledCategories.forEach(category => {
+      // ボタン要素を作成
+      const button = document.createElement('button');
+      button.className = `category-button absolute text-sm px-3 py-1 rounded-full ${category.color}`;
+      button.setAttribute('onclick', `filterCategory('${category.id}')`);
+      button.setAttribute('data-category-btn', category.id);
+      button.textContent = category.name;
+      
+      // ランダムな位置を設定（コンテナ内に収まるようにする）
+      const containerWidth = container.offsetWidth;
+      const containerHeight = container.offsetHeight;
+      const buttonWidth = 80; // ボタンのおおよその幅
+      const buttonHeight = 30; // ボタンのおおよその高さ
+      
+      const leftPos = Math.random() * (containerWidth - buttonWidth);
+      const topPos = Math.random() * (containerHeight - buttonHeight);
+      
+      button.style.left = `${leftPos}px`;
+      button.style.top = `${topPos}px`;
+      
+      // コンテナに追加
+      container.appendChild(button);
+    });
+  }
+  
+  // ページ読み込み時にカテゴリーをランダム配置
+  document.addEventListener('DOMContentLoaded', randomizeCategories);
+  
+  // カテゴリーフィルター関数
+  function filterCategory(category) {
+    // 現在のフィルタリングコード
+    const items = document.querySelectorAll('.qa-item');
+    items.forEach(item => {
+      if (category === 'all' || item.dataset.category === category) {
+        item.classList.remove('hidden');
+      } else {
+        item.classList.add('hidden');
+      }
+    });
+    
+    // フィルタリング後にカテゴリーを再配置（オプション）
+    randomizeCategories();
+  }
+</script>
+
 
 <!-- 最新Q&Aリスト -->
   <section class="p-3">
