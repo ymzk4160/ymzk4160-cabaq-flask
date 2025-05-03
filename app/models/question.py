@@ -17,7 +17,7 @@ class Question(db.Model):
     # 外部キー
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     
-    # リレーションシップをシンプルに定義（循環参照を避ける）
+    # シンプルなリレーションシップ定義
     user = relationship("User", foreign_keys=[user_id])
     answers = relationship("Answer")
     
