@@ -39,24 +39,28 @@
   </button>
 </section>
 
-<!-- カテゴリー（2段固定レイアウト） -->
+<!-- カテゴリー（文字数バランス最適化済みの2段レイアウト） -->
 <div class="p-2 bg-white shadow">
   <!-- 1段目 -->
-  <div class="flex justify-center mb-2">
-    <button onclick="filterCategory('all')" class="category-button inline-block bg-pink-400 text-white text-sm px-3 py-1 rounded-full mx-1" data-category-btn="all">すべて</button>
-    <button onclick="filterCategory('初心者')" class="category-button inline-block bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full mx-1" data-category-btn="初心者">初心者</button>
-    <button onclick="filterCategory('営業')" class="category-button inline-block bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full mx-1" data-category-btn="営業">営業</button>
-    <button onclick="filterCategory('出勤')" class="category-button inline-block bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full mx-1" data-category-btn="出勤">出勤</button>
-    <button onclick="filterCategory('メンタル')" class="category-button inline-block bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full mx-1" data-category-btn="メンタル">メンタル</button>
+  <div class="flex mb-2">
+    <div class="w-1/6">
+      <button onclick="filterCategory('all')" class="category-button bg-pink-400 text-white text-sm px-3 py-1 rounded-full" data-category-btn="all">すべて</button>
+    </div>
+    <div class="w-5/6 flex justify-between">
+      <button onclick="filterCategory('初心者')" class="category-button bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full" data-category-btn="初心者">初心者</button>
+      <button onclick="filterCategory('営業')" class="category-button bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full" data-category-btn="営業">営業</button>
+      <button onclick="filterCategory('出勤')" class="category-button bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full" data-category-btn="出勤">出勤</button>
+      <button onclick="filterCategory('メンタル')" class="category-button bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full" data-category-btn="メンタル">メンタル</button>
+      <button onclick="filterCategory('店不満')" class="category-button bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full" data-category-btn="店不満">店への不満</button>
+    </div>
   </div>
   <!-- 2段目 -->
-  <div class="flex justify-center">
-    <button onclick="filterCategory('身バレ')" class="category-button inline-block bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full mx-1" data-category-btn="身バレ">身バレ</button>
-    <button onclick="filterCategory('店不満')" class="category-button inline-block bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full mx-1" data-category-btn="店不満">店への不満</button>
-    <button onclick="filterCategory('美容')" class="category-button inline-block bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full mx-1" data-category-btn="美容">美容</button>
-    <button onclick="filterCategory('恋愛')" class="category-button inline-block bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full mx-1" data-category-btn="恋愛">恋愛</button>
-    <button onclick="filterCategory('バースデイ')" class="category-button inline-block bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full mx-1" data-category-btn="バースデイ">バースデイ</button>
-    <button onclick="filterCategory('プライベート')" class="category-button inline-block bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full mx-1" data-category-btn="プライベート">プライベート</button>
+  <div class="flex justify-between pl-[16.7%]"> <!-- すべてボタンの下は空ける -->
+    <button onclick="filterCategory('身バレ')" class="category-button bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full" data-category-btn="身バレ">身バレ</button>
+    <button onclick="filterCategory('バースデイ')" class="category-button bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full" data-category-btn="バースデイ">バースデイ</button>
+    <button onclick="filterCategory('美容')" class="category-button bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full" data-category-btn="美容">美容</button>
+    <button onclick="filterCategory('恋愛')" class="category-button bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full" data-category-btn="恋愛">恋愛</button>
+    <button onclick="filterCategory('プライベート')" class="category-button bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full" data-category-btn="プライベート">プライベート</button>
   </div>
 </div>
 
