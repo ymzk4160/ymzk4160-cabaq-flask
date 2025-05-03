@@ -1,12 +1,12 @@
 from flask import Flask, render_template
 from app.routes import main
-from app.extensions import db  # SQLAlchemyインスタンスをインポート
+from app.extensions import db
 
 def create_app():
     app = Flask(__name__)
     
     # データベース設定
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'  # または実際のDB URL
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'  # SQLiteを使用
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     
     # SQLAlchemyの初期化
