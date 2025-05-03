@@ -39,9 +39,37 @@
   </button>
 </section>
 
-<!-- カテゴリー（ランダム配置・重なり防止） -->
-<div id="category-container" class="p-2 bg-white shadow relative min-h-[120px]">
-  <!-- カテゴリーボタンはJavaScriptで動的に配置されます -->
+
+<!-- 雲形の中でランダム配置されるカテゴリー -->
+<div class="p-2 bg-white shadow relative">
+  <!-- 雲形の背景 -->
+  <svg class="cloud-bg absolute top-0 left-0 w-full h-full" viewBox="0 0 400 150" preserveAspectRatio="none">
+    <path d="M25,100 
+      C35,120 45,130 75,130 
+      C85,130 100,120 110,115 
+      C125,110 150,100 170,110 
+      C180,115 190,130 200,130 
+      C220,130 230,115 240,110 
+      C265,100 285,110 300,120 
+      C330,135 350,120 360,100 
+      C370,80 365,70 350,65 
+      C340,60 330,55 340,45 
+      C350,35 340,20 325,15 
+      C310,10 280,20 275,30 
+      C270,40 260,35 245,30 
+      C230,25 210,35 200,40 
+      C190,35 175,25 160,30 
+      C145,35 130,50 125,55 
+      C115,65 95,65 85,60 
+      C75,55 60,60 50,70 
+      C40,80 25,80 25,100" 
+      fill="#FDF2F8" stroke="#F9A8D4" stroke-width="2"></path>
+  </svg>
+  
+  <!-- カテゴリーボタンを配置するコンテナ -->
+  <div id="category-container" class="relative min-h-[150px]">
+    <!-- カテゴリーボタンはJavaScriptで動的に配置されます -->
+  </div>
 </div>
 
 <script>
@@ -84,7 +112,6 @@
     // コンテナのサイズを取得
     const containerWidth = container.offsetWidth;
     const containerHeight = 150; // 固定の高さを設定
-    container.style.minHeight = containerHeight + 'px';
     
     // 各ボタンのおおよそのサイズ（テキストの長さに応じて調整）
     const buttonSizes = shuffledCategories.map(category => {
@@ -105,10 +132,11 @@
       while (!found && attempts < 100) {
         attempts++;
         
-        // ランダムな位置を生成
+        // ランダムな位置を生成（雲形の中に収まるようにパディングを考慮）
+        const padding = 20;
         position = {
-          left: Math.random() * (containerWidth - buttonSize.width),
-          top: Math.random() * (containerHeight - buttonSize.height)
+          left: padding + Math.random() * (containerWidth - buttonSize.width - (padding * 2)),
+          top: padding + Math.random() * (containerHeight - buttonSize.height - (padding * 2))
         };
         
         // 他のボタンとの衝突をチェック
@@ -124,13 +152,15 @@
       // 位置が見つかったらボタンを作成
       if (found) {
         const button = document.createElement('button');
-        button.className = `category-button absolute text-sm px-3 py-1 rounded-full ${category.color}`;
+        button.className = `category-button absolute text-sm px-3 py-1 rounded-full ${category.color} shadow-sm`;
         button.setAttribute('onclick', `filterCategory('${category.id}')`);
         button.setAttribute('data-category-btn', category.id);
         button.textContent = category.name;
         
         button.style.left = `${position.left}px`;
         button.style.top = `${position.top}px`;
+        // ふわふわと浮いているような軽いアニメーション効果を追加
+        button.style.animation = `float ${2 + Math.random() * 2}s ease-in-out infinite`;
         
         container.appendChild(button);
         
@@ -140,19 +170,29 @@
           size: buttonSize
         });
       } else {
-        // 100回試行しても位置が見つからない場合は、通常のフローレイアウトでボタンを追加
+        // 位置が見つからない場合は、下部にフローレイアウトで追加
         const button = document.createElement('button');
-        button.className = `category-button inline-block text-sm px-3 py-1 rounded-full m-1 ${category.color}`;
+        button.className = `category-button inline-block text-sm px-3 py-1 rounded-full m-1 ${category.color} shadow-sm`;
         button.setAttribute('onclick', `filterCategory('${category.id}')`);
         button.setAttribute('data-category-btn', category.id);
         button.textContent = category.name;
         
         // 絶対位置指定ではなく、通常のフローに追加
         button.style.position = 'relative';
-        container.appendChild(button);
+        container.appendChild(document.createElement('div')).appendChild(button);
       }
     });
   }
+  
+  // アニメーションのためのスタイルを追加
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
+    }
+  `;
+  document.head.appendChild(style);
   
   // ページ読み込み時にカテゴリーをランダム配置
   document.addEventListener('DOMContentLoaded', randomizeCategories);
@@ -173,16 +213,13 @@
     const buttons = document.querySelectorAll('[data-category-btn]');
     buttons.forEach(btn => {
       if (btn.getAttribute('data-category-btn') === category) {
-        // すべてボタン以外の場合はスタイルを変更
         if (category !== 'all') {
           btn.classList.add('bg-pink-400', 'text-white');
           btn.classList.remove('bg-pink-200', 'hover:bg-pink-300');
         }
       } else if (btn.getAttribute('data-category-btn') === 'all') {
-        // すべてボタンは常に特別なスタイル
         btn.classList.add('bg-pink-400', 'text-white');
       } else {
-        // その他のボタンは通常スタイルに戻す
         btn.classList.remove('bg-pink-400', 'text-white');
         btn.classList.add('bg-pink-200', 'hover:bg-pink-300');
       }
