@@ -1,23 +1,33 @@
-import os
 from flask import Flask
-from app.extensions import db, migrate, bcrypt
-from app.config import config
+from app.extensions import db, migrate, bcrypt  # login_managerを削除
 
-def create_app(config_name='default'):
-    """アプリケーションファクトリー関数"""
+def create_app():
     app = Flask(__name__)
     
     # 設定読み込み
-    app.config.from_object(config[config_name])
+    app.config.from_object('app.config')
     
     # 拡張機能の初期化
     db.init_app(app)
     migrate.init_app(app, db)
     bcrypt.init_app(app)
-    login_manager.init_app(app)
+    # login_manager.init_app(app)  # コメントアウト
     
-    # ルートの登録
-    from app.routes import main
-    app.register_blueprint(main.bp)
+    # ブループリントの登録
+    from app.routes.main import bp as main_bp
+    app.register_blueprint(main_bp)
+    
+    # 他のブループリントがあれば同様に登録
+    from app.routes.auth import bp as auth_bp
+    app.register_blueprint(auth_bp)
+    
+    # エラーハンドラー
+    @app.errorhandler(404)
+    def page_not_found(e):
+        return render_template('errors/404.html'), 404
+    
+    @app.errorhandler(500)
+    def internal_server_error(e):
+        return render_template('errors/500.html'), 500
     
     return app
