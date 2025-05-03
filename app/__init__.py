@@ -1,6 +1,6 @@
 import os
 from flask import Flask
-from app.extensions import db, migrate, bcrypt, login_manager
+from app.extensions import db, migrate, bcrypt
 from app.config import config
 
 def create_app(config_name='default'):
