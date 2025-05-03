@@ -17,9 +17,9 @@ def create_app():
     from app.routes.main import bp as main_bp
     app.register_blueprint(main_bp)
     
-    # 他のブループリントがあれば同様に登録
-    from app.routes.auth import bp as auth_bp
-    app.register_blueprint(auth_bp)
+    # 認証ブループリントの登録をコメントアウト
+    # from app.routes.auth import bp as auth_bp
+    # app.register_blueprint(auth_bp)
     
     # エラーハンドラー
     @app.errorhandler(404)
