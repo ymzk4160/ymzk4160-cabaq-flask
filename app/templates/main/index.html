@@ -39,7 +39,7 @@
   </button>
 </section>
 
-<!-- カテゴリー（シンプルなランダム配置） -->
+<!-- カテゴリー（ランダム配置＋アニメーション） -->
 <div id="category-container" class="p-2 bg-white shadow relative min-h-[150px]">
   <!-- カテゴリーボタンはJavaScriptで動的に配置されます -->
 </div>
@@ -60,32 +60,57 @@
     { id: 'プライベート', name: 'プライベート', color: 'bg-pink-200 hover:bg-pink-300' }
   ];
 
+  // アニメーションのためのスタイルを追加
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
+    }
+  `;
+  document.head.appendChild(style);
+
   // カテゴリーボタンをランダムに配置する関数
   function randomizeCategories() {
     const container = document.getElementById('category-container');
     container.innerHTML = ''; // コンテナをクリア
     
-    // すべてのボタンを再作成して配置し直す
-    categories.forEach(category => {
+    // 「すべて」ボタンを左上に固定配置
+    const allButton = document.createElement('button');
+    allButton.className = `category-button absolute text-sm px-3 py-1 rounded-full bg-pink-400 text-white`;
+    allButton.setAttribute('onclick', `filterCategory('all')`);
+    allButton.setAttribute('data-category-btn', 'all');
+    allButton.textContent = 'すべて';
+    allButton.style.left = '10px';
+    allButton.style.top = '10px';
+    container.appendChild(allButton);
+    
+    // 他のカテゴリーをランダム配置（「すべて」を除く）
+    categories.slice(1).forEach(category => {
       const button = document.createElement('button');
-      button.className = `category-button absolute text-sm px-3 py-1 rounded-full ${category.color}`;
+      button.className = `category-button absolute text-sm px-3 py-1 rounded-full ${category.color} shadow-sm`;
       button.setAttribute('onclick', `filterCategory('${category.id}')`);
       button.setAttribute('data-category-btn', category.id);
       button.textContent = category.name;
       
-      // 画面全体にランダムな位置を設定
+      // ランダムな位置を設定（内側にマージンを考慮）
       const containerWidth = container.offsetWidth;
       const containerHeight = 150;
       const buttonWidth = category.name.length * 10 + 20;
       const buttonHeight = 30;
       
-      // ランダムな位置を設定（内側にマージンを考慮）
       const margin = 10;
       const leftPos = margin + Math.random() * (containerWidth - buttonWidth - margin * 2);
       const topPos = margin + Math.random() * (containerHeight - buttonHeight - margin * 2);
       
       button.style.left = `${leftPos}px`;
       button.style.top = `${topPos}px`;
+      
+      // ふわふわと浮いているようなアニメーション効果を追加
+      const animationDuration = 2 + Math.random() * 2; // 2〜4秒のランダムな時間
+      button.style.animation = `float ${animationDuration}s ease-in-out infinite`;
+      // アニメーションの開始時間をずらす
+      button.style.animationDelay = `${Math.random() * 2}s`;
       
       container.appendChild(button);
     });
@@ -94,7 +119,7 @@
   // ページ読み込み時にカテゴリーをランダム配置
   document.addEventListener('DOMContentLoaded', randomizeCategories);
   
-  // カテゴリーフィルター関数の処理
+  // カテゴリーフィルター関数
   function filterCategory(category) {
     // 現在のフィルタリングコード
     const items = document.querySelectorAll('.qa-item');
@@ -110,24 +135,22 @@
     const buttons = document.querySelectorAll('[data-category-btn]');
     buttons.forEach(btn => {
       if (btn.getAttribute('data-category-btn') === category) {
-        btn.classList.add('bg-pink-400', 'text-white');
-        btn.classList.remove('bg-pink-200', 'hover:bg-pink-300');
-      } else if (btn.getAttribute('data-category-btn') === 'all') {
         if (category !== 'all') {
-          btn.classList.remove('bg-pink-400', 'text-white');
-          btn.classList.add('bg-pink-200', 'hover:bg-pink-300');
+          btn.classList.add('bg-pink-400', 'text-white');
+          btn.classList.remove('bg-pink-200', 'hover:bg-pink-300');
         }
+      } else if (btn.getAttribute('data-category-btn') === 'all') {
+        // すべてボタンは常に特別なスタイル
       } else {
         btn.classList.remove('bg-pink-400', 'text-white');
         btn.classList.add('bg-pink-200', 'hover:bg-pink-300');
       }
     });
     
-    // フィルター後にすべてのボタンを再配置
+    // フィルター後に「すべて」以外のボタンを再配置（「すべて」は固定）
     randomizeCategories();
   }
 </script>
-
 
 
 
