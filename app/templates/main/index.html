@@ -39,144 +39,26 @@
   </button>
 </section>
 
-
-<!-- カテゴリー（円形配置＋アニメーション） -->
-<div id="category-container" class="p-2 bg-white shadow relative min-h-[150px]">
-  <!-- カテゴリーボタンはJavaScriptで動的に配置されます -->
+<!-- カテゴリー（2段固定レイアウト） -->
+<div class="p-2 bg-white shadow">
+  <!-- 1段目 -->
+  <div class="flex justify-center mb-2">
+    <button onclick="filterCategory('all')" class="category-button inline-block bg-pink-400 text-white text-sm px-3 py-1 rounded-full mx-1" data-category-btn="all">すべて</button>
+    <button onclick="filterCategory('初心者')" class="category-button inline-block bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full mx-1" data-category-btn="初心者">初心者</button>
+    <button onclick="filterCategory('営業')" class="category-button inline-block bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full mx-1" data-category-btn="営業">営業</button>
+    <button onclick="filterCategory('出勤')" class="category-button inline-block bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full mx-1" data-category-btn="出勤">出勤</button>
+    <button onclick="filterCategory('メンタル')" class="category-button inline-block bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full mx-1" data-category-btn="メンタル">メンタル</button>
+  </div>
+  <!-- 2段目 -->
+  <div class="flex justify-center">
+    <button onclick="filterCategory('身バレ')" class="category-button inline-block bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full mx-1" data-category-btn="身バレ">身バレ</button>
+    <button onclick="filterCategory('店不満')" class="category-button inline-block bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full mx-1" data-category-btn="店不満">店への不満</button>
+    <button onclick="filterCategory('美容')" class="category-button inline-block bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full mx-1" data-category-btn="美容">美容</button>
+    <button onclick="filterCategory('恋愛')" class="category-button inline-block bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full mx-1" data-category-btn="恋愛">恋愛</button>
+    <button onclick="filterCategory('バースデイ')" class="category-button inline-block bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full mx-1" data-category-btn="バースデイ">バースデイ</button>
+    <button onclick="filterCategory('プライベート')" class="category-button inline-block bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full mx-1" data-category-btn="プライベート">プライベート</button>
+  </div>
 </div>
-
-<script>
-  // カテゴリーのデータ
-  const categories = [
-    { id: 'all', name: 'すべて', color: 'bg-pink-400 text-white' },
-    { id: '初心者', name: '初心者', color: 'bg-pink-200 hover:bg-pink-300' },
-    { id: '営業', name: '営業', color: 'bg-pink-200 hover:bg-pink-300' },
-    { id: '出勤', name: '出勤', color: 'bg-pink-200 hover:bg-pink-300' },
-    { id: 'バースデイ', name: 'バースデイ', color: 'bg-pink-200 hover:bg-pink-300' },
-    { id: 'メンタル', name: 'メンタル', color: 'bg-pink-200 hover:bg-pink-300' },
-    { id: '身バレ', name: '身バレ', color: 'bg-pink-200 hover:bg-pink-300' },
-    { id: '店不満', name: '店への不満', color: 'bg-pink-200 hover:bg-pink-300' },
-    { id: '美容', name: '美容', color: 'bg-pink-200 hover:bg-pink-300' },
-    { id: '恋愛', name: '恋愛', color: 'bg-pink-200 hover:bg-pink-300' },
-    { id: 'プライベート', name: 'プライベート', color: 'bg-pink-200 hover:bg-pink-300' }
-  ];
-
-  // アニメーションのためのスタイルを追加
-  const style = document.createElement('style');
-  style.textContent = `
-    @keyframes float {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-5px); }
-    }
-  `;
-  document.head.appendChild(style);
-
-  // カテゴリーボタンを円形に配置する関数
-  function randomizeCategories() {
-    const container = document.getElementById('category-container');
-    container.innerHTML = ''; // コンテナをクリア
-    
-    // コンテナのサイズを取得
-    const containerWidth = container.offsetWidth;
-    const containerHeight = 150;
-    container.style.minHeight = containerHeight + 'px';
-    
-    // 「すべて」ボタンは中央に配置
-    const allButton = document.createElement('button');
-    allButton.className = `category-button absolute text-sm px-3 py-1 rounded-full bg-pink-400 text-white shadow-sm`;
-    allButton.setAttribute('onclick', `filterCategory('all')`);
-    allButton.setAttribute('data-category-btn', 'all');
-    allButton.textContent = 'すべて';
-    
-    // 中央付近に配置
-    const centerX = containerWidth / 2 - 30;
-    const centerY = containerHeight / 2 - 15;
-    
-    allButton.style.left = `${centerX}px`;
-    allButton.style.top = `${centerY}px`;
-    allButton.style.zIndex = '10'; // 他のボタンより前面に
-    container.appendChild(allButton);
-    
-    // 残りのカテゴリーをシャッフル
-    const otherCategories = categories.slice(1);
-    const shuffledCategories = [...otherCategories].sort(() => Math.random() - 0.5);
-    
-    // 円形に配置するための計算
-    const numButtons = shuffledCategories.length;
-    const radius = Math.min(containerWidth, containerHeight) / 2.5; // 円の半径
-    
-    shuffledCategories.forEach((category, index) => {
-      const button = document.createElement('button');
-      button.className = `category-button absolute text-sm px-3 py-1 rounded-full ${category.color} shadow-sm`;
-      button.setAttribute('onclick', `filterCategory('${category.id}')`);
-      button.setAttribute('data-category-btn', category.id);
-      button.textContent = category.name;
-      
-      // 円周上の位置を計算（少しランダム性を持たせる）
-      const angle = (index / numButtons) * 2 * Math.PI + (Math.random() * 0.3 - 0.15); // 少しランダムにずらす
-      const randomRadius = radius * (0.8 + Math.random() * 0.4); // 半径も少しランダムに
-      
-      const x = centerX + randomRadius * Math.cos(angle);
-      const y = centerY + randomRadius * Math.sin(angle);
-      
-      // ボタンのサイズを考慮して調整（枠内に収める）
-      const buttonWidth = Math.max(category.name.length * 10 + 20, 60);
-      const buttonHeight = 30;
-      
-      const adjustedX = Math.max(10, Math.min(containerWidth - buttonWidth - 10, x));
-      const adjustedY = Math.max(10, Math.min(containerHeight - buttonHeight - 10, y));
-      
-      button.style.left = `${adjustedX}px`;
-      button.style.top = `${adjustedY}px`;
-      
-      // ふわふわと浮いているようなアニメーション効果を追加
-      const animationDuration = 2 + Math.random() * 2; // 2〜4秒のランダムな時間
-      button.style.animation = `float ${animationDuration}s ease-in-out infinite`;
-      // アニメーションの開始時間をずらす
-      button.style.animationDelay = `${Math.random() * 2}s`;
-      
-      container.appendChild(button);
-    });
-  }
-  
-  // ページ読み込み時にカテゴリーをランダム配置
-  document.addEventListener('DOMContentLoaded', randomizeCategories);
-  
-  // カテゴリーフィルター関数
-  function filterCategory(category) {
-    // 現在のフィルタリングコード
-    const items = document.querySelectorAll('.qa-item');
-    items.forEach(item => {
-      if (category === 'all' || item.dataset.category === category) {
-        item.classList.remove('hidden');
-      } else {
-        item.classList.add('hidden');
-      }
-    });
-    
-    // カテゴリーボタンの強調表示
-    const buttons = document.querySelectorAll('[data-category-btn]');
-    buttons.forEach(btn => {
-      if (btn.getAttribute('data-category-btn') === category) {
-        if (category !== 'all') {
-          btn.classList.add('bg-pink-400', 'text-white');
-          btn.classList.remove('bg-pink-200', 'hover:bg-pink-300');
-        }
-      } else if (btn.getAttribute('data-category-btn') === 'all') {
-        // すべてボタンは常に特別なスタイル
-      } else {
-        btn.classList.remove('bg-pink-400', 'text-white');
-        btn.classList.add('bg-pink-200', 'hover:bg-pink-300');
-      }
-    });
-    
-    // フィルター後にボタンを再配置
-    randomizeCategories();
-  }
-</script>
-
-
-
 
 <!-- 最新Q&Aリスト -->
   <section class="p-3">
