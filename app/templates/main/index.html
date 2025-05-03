@@ -41,16 +41,19 @@
 
 <!-- カテゴリー（横2段レイアウト・文字数バランス最適化） -->
 <div class="p-2 bg-white shadow">
-  <!-- 1段目 -->
-  <div class="flex justify-center space-x-2 mb-2">
+<!-- 1段目 -->
+    <div class="flex justify-center space-x-2 mb-2">
     <button onclick="filterCategory('all')" class="category-button bg-pink-400 text-white text-sm px-3 py-1 rounded-full" data-category-btn="all">すべて</button>
+  </div>
+<!-- 2段目 -->
+  <div class="flex justify-center space-x-2 mb-2">
     <button onclick="filterCategory('初心者')" class="category-button bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full" data-category-btn="初心者">初心者</button>
     <button onclick="filterCategory('営業')" class="category-button bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full" data-category-btn="営業">営業</button>
     <button onclick="filterCategory('出勤')" class="category-button bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full" data-category-btn="出勤">出勤</button>
     <button onclick="filterCategory('メンタル')" class="category-button bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full" data-category-btn="メンタル">メンタル</button>
     <button onclick="filterCategory('店不満')" class="category-button bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full" data-category-btn="店不満">店への不満</button>
   </div>
-  <!-- 2段目 -->
+<!-- 3段目 -->
   <div class="flex justify-center space-x-2">
     <button onclick="filterCategory('身バレ')" class="category-button bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full" data-category-btn="身バレ">身バレ</button>
     <button onclick="filterCategory('バースデイ')" class="category-button bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full" data-category-btn="バースデイ">バースデイ</button>
@@ -59,6 +62,7 @@
     <button onclick="filterCategory('プライベート')" class="category-button bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full" data-category-btn="プライベート">プライベート</button>
   </div>
 </div>
+
 
 <!-- 最新Q&Aリスト -->
   <section class="p-3">
