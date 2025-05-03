@@ -39,7 +39,8 @@
   </button>
 </section>
 
-<!-- カテゴリー（ランダム配置＋アニメーション） -->
+
+<!-- カテゴリー（グリッドベースのランダム配置＋アニメーション） -->
 <div id="category-container" class="p-2 bg-white shadow relative min-h-[150px]">
   <!-- カテゴリーボタンはJavaScriptで動的に配置されます -->
 </div>
@@ -70,41 +71,84 @@
   `;
   document.head.appendChild(style);
 
-  // カテゴリーボタンをランダムに配置する関数
+  // カテゴリーボタンをグリッドベースでランダムに配置する関数
   function randomizeCategories() {
     const container = document.getElementById('category-container');
     container.innerHTML = ''; // コンテナをクリア
     
-    // 「すべて」ボタンを左上に固定配置
+    // コンテナのサイズを取得
+    const containerWidth = container.offsetWidth;
+    const containerHeight = 150;
+    container.style.minHeight = containerHeight + 'px';
+    
+    // グリッドの設定
+    const columns = 4; // 横のセル数
+    const rows = 3;    // 縦のセル数
+    
+    const cellWidth = containerWidth / columns;
+    const cellHeight = containerHeight / rows;
+    
+    // グリッドセルの状態を管理（配置済みかどうか）
+    const gridCells = Array(rows).fill().map(() => Array(columns).fill(false));
+    
+    // 「すべて」ボタンは左上のセルに固定
     const allButton = document.createElement('button');
-    allButton.className = `category-button absolute text-sm px-3 py-1 rounded-full bg-pink-400 text-white`;
+    allButton.className = `category-button absolute text-sm px-3 py-1 rounded-full bg-pink-400 text-white shadow-sm`;
     allButton.setAttribute('onclick', `filterCategory('all')`);
     allButton.setAttribute('data-category-btn', 'all');
     allButton.textContent = 'すべて';
-    allButton.style.left = '10px';
-    allButton.style.top = '10px';
-    container.appendChild(allButton);
     
-    // 他のカテゴリーをランダム配置（「すべて」を除く）
-    categories.slice(1).forEach(category => {
+    // セル内でのランダムな位置（完全左上ではない）
+    const allButtonX = 10 + Math.random() * (cellWidth / 3);
+    const allButtonY = 10 + Math.random() * (cellHeight / 3);
+    
+    allButton.style.left = `${allButtonX}px`;
+    allButton.style.top = `${allButtonY}px`;
+    allButton.style.animation = 'none'; // すべてボタンはアニメーションなし
+    
+    container.appendChild(allButton);
+    gridCells[0][0] = true; // 左上のセルを使用済みにマーク
+    
+    // 残りのカテゴリーボタンをシャッフル
+    const shuffledCategories = [...categories.slice(1)].sort(() => Math.random() - 0.5);
+    
+    // ボタンを配置
+    shuffledCategories.forEach((category, index) => {
+      // ランダムなグリッドセルを選択（まだ使われていないものから）
+      let row, col;
+      let found = false;
+      let attempts = 0;
+      
+      // 空いているセルを探す
+      while (!found && attempts < 100) {
+        row = Math.floor(Math.random() * rows);
+        col = Math.floor(Math.random() * columns);
+        
+        if (!gridCells[row][col]) {
+          found = true;
+          gridCells[row][col] = true; // セルを使用済みにマーク
+        }
+        attempts++;
+      }
+      
+      // 空いているセルが見つからない場合は、既に使用済みのセルをランダムに選択
+      if (!found) {
+        row = Math.floor(Math.random() * rows);
+        col = Math.floor(Math.random() * columns);
+      }
+      
+      // セル内でのランダムな位置（セル全体をカバー）
+      const xOffset = Math.random() * (cellWidth * 0.7); // セル幅の70%までの範囲でランダム
+      const yOffset = Math.random() * (cellHeight * 0.7); // セル高さの70%までの範囲でランダム
+      
       const button = document.createElement('button');
       button.className = `category-button absolute text-sm px-3 py-1 rounded-full ${category.color} shadow-sm`;
       button.setAttribute('onclick', `filterCategory('${category.id}')`);
       button.setAttribute('data-category-btn', category.id);
       button.textContent = category.name;
       
-      // ランダムな位置を設定（内側にマージンを考慮）
-      const containerWidth = container.offsetWidth;
-      const containerHeight = 150;
-      const buttonWidth = category.name.length * 10 + 20;
-      const buttonHeight = 30;
-      
-      const margin = 10;
-      const leftPos = margin + Math.random() * (containerWidth - buttonWidth - margin * 2);
-      const topPos = margin + Math.random() * (containerHeight - buttonHeight - margin * 2);
-      
-      button.style.left = `${leftPos}px`;
-      button.style.top = `${topPos}px`;
+      button.style.left = `${col * cellWidth + xOffset}px`;
+      button.style.top = `${row * cellHeight + yOffset}px`;
       
       // ふわふわと浮いているようなアニメーション効果を追加
       const animationDuration = 2 + Math.random() * 2; // 2〜4秒のランダムな時間
@@ -147,7 +191,7 @@
       }
     });
     
-    // フィルター後に「すべて」以外のボタンを再配置（「すべて」は固定）
+    // フィルター後にボタンを再配置
     randomizeCategories();
   }
 </script>
