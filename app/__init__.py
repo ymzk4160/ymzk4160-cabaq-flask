@@ -24,10 +24,10 @@ def create_app():
     # エラーハンドラー
     @app.errorhandler(404)
     def page_not_found(e):
-        return render_template('errors/404.html'), 404
+        return "ページが見つかりません (404)", 404
     
     @app.errorhandler(500)
     def internal_server_error(e):
-        return render_template('errors/500.html'), 500
+        return "サーバーエラーが発生しました (500)", 500
     
     return app
