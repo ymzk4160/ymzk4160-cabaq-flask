@@ -7,7 +7,7 @@ from app.models.question import Question
 from app.models.answer import Answer
 
 # Blueprintを作成
-bp = Blueprint('main', __name__)
+bp = Blueprint('main', __name__)  # **name** を __name__ に修正
 
 @bp.route('/')
 def index():
