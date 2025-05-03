@@ -1,11 +1,36 @@
+from flask import Blueprint, render_template, redirect, url_for
+# flask_loginのインポートを削除
+# from flask_login import current_user
+from app.extensions import db
 from datetime import datetime, timedelta
 import random
 from app.models.user import User
 from app.models.question import Question, Answer
 
+# Blueprintを作成
+bp = Blueprint('main', __name__)
+
+@bp.route('/')
+def index():
+    """トップページ"""
+    # データベースから最新の質問を取得
+    recent_questions = Question.query.filter_by(is_deleted=False).order_by(Question.created_at.desc()).limit(10).all()
+    
+    return render_template('main/index.html', questions=recent_questions)
+
+@bp.route('/about')
+def about():
+    """サイト紹介ページ"""
+    return render_template('main/about.html')
+
+@bp.route('/setup-db')
+def setup_db():
+    """データベーステーブルの作成"""
+    db.create_all()
+    return 'データベーステーブルが作成されました！'
+
 @bp.route('/seed-data')
 def seed_data_route():
-    """開発用：ダミーデータを追加"""
     try:
         # ユーザーの追加
         users = []
@@ -27,7 +52,7 @@ def seed_data_route():
         categories = ["初心者", "営業", "出勤", "メンタル", "身バレ", "店への不満", "美容", "恋愛", "バースデイ", "プライベート"]
         
         for category in categories:
-            for i in range(5):  # 各カテゴリ5件ずつ
+            for i in range(5):
                 question = Question(
                     title=f"{category}についての質問{i+1}",
                     content=f"{category}に関する詳細な質問内容です。{i+1}番目の質問です。",
@@ -38,7 +63,6 @@ def seed_data_route():
                 db.session.add(question)
                 db.session.flush()
                 
-                # 各質問に1-3件の回答を追加
                 for j in range(random.randint(1, 3)):
                     answer = Answer(
                         content=f"{category}についての回答です。{j+1}番目の回答です。",
