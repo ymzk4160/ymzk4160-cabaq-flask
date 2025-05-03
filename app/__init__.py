@@ -1,8 +1,16 @@
 from flask import Flask, render_template
-from app.routes import main  # mainモジュールをインポート
+from app.routes import main
+from app.extensions import db  # SQLAlchemyインスタンスをインポート
 
 def create_app():
     app = Flask(__name__)
+    
+    # データベース設定
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'  # または実際のDB URL
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    
+    # SQLAlchemyの初期化
+    db.init_app(app)
     
     # Blueprintを登録
     app.register_blueprint(main.bp)
