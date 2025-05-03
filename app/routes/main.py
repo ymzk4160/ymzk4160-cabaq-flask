@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, redirect, url_for
 from app.extensions import db
-from app.models import Question
+from app.models.question import Question
 
 # Blueprintを作成
 bp = Blueprint('main', __name__)
@@ -8,8 +8,8 @@ bp = Blueprint('main', __name__)
 @bp.route('/')
 def index():
     """トップページ"""
-    # 一時的にダミーデータを使用
-    recent_questions = []
+    # データベースから最新の質問を取得
+    recent_questions = Question.query.filter_by(is_deleted=False).order_by(Question.created_at.desc()).limit(10).all()
     
     return render_template('main/index.html', questions=recent_questions)
 
