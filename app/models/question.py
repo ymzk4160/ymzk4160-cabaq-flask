@@ -1,50 +1,25 @@
 from datetime import datetime
 from app.extensions import db
+from sqlalchemy.orm import relationship
+from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Boolean
 
 class Question(db.Model):
     __tablename__ = 'questions'
-    __table_args__ = {'extend_existing': True}
     
-    # 基本情報
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(255), nullable=False)
     content = db.Column(db.Text, nullable=False)
-    category = db.Column(db.String(50), nullable=False)
-    
-    # 関連情報
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
-    
-    # システム情報
+    category = db.Column(db.String(50))
     is_deleted = db.Column(db.Boolean, default=False)
-    created_at = db.Column(db.DateTime, server_default=db.func.now())
-    updated_at = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # 外部キー
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     
     # リレーションシップ
-    answers = db.relationship('Answer', backref='question', lazy='dynamic', cascade='all, delete-orphan')
+    user = relationship("app.models.user.User", back_populates="questions")
+    answers = relationship("app.models.answer.Answer", back_populates="question")
     
     def __repr__(self):
-        return f'<Question {self.title}>'
-    
-    @property
-    def answer_count(self):
-        return self.answers.filter_by(is_deleted=False).count()
-
-class Answer(db.Model):
-    __tablename__ = 'answers'
-    __table_args__ = {'extend_existing': True}
-    
-    # 基本情報
-    id = db.Column(db.Integer, primary_key=True)
-    content = db.Column(db.Text, nullable=False)
-    
-    # 関連情報
-    question_id = db.Column(db.Integer, db.ForeignKey('questions.id'), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
-    
-    # システム情報
-    is_deleted = db.Column(db.Boolean, default=False)
-    created_at = db.Column(db.DateTime, server_default=db.func.now())
-    updated_at = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
-    
-    def __repr__(self):
-        return f'<Answer {self.id} for Question {self.question_id}>'
+        return f'<Question {self.id}: {self.title}>'
