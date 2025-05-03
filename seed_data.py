@@ -12,12 +12,12 @@ dummy_users = [
     {"email": "reina@example.com", "nickname": "れいな", "display_name": "れいな", "password_hash": "hashed_password"},
     {"email": "sakura@example.com", "nickname": "さくら", "display_name": "さくら", "password_hash": "hashed_password"},
     {"email": "maria@example.com", "nickname": "まりあ", "display_name": "まりあ", "password_hash": "hashed_password"},
-    {"email": "yukina@example.com", "nickname": "ゆきな", "display_name": "ゆきの", "password_hash": "hashed_password"}
-  　{"email": "yukina@example.com", "nickname": "ゆきな", "display_name": "ゆりな", "password_hash": "hashed_password"　}
-　　{"email": "yukina@example.com", "nickname": "ゆきな", "display_name": "美咲", "password_hash": "hashed_password"}  
-　　{"email": "yukina@example.com", "nickname": "ゆきな", "display_name": "ゆきな", "password_hash": "hashed_password"}
-　　{"email": "yukina@example.com", "nickname": "ゆきな", "display_name": "ゆき", "password_hash": "hashed_password"}
-　　{"email": "yukina@example.com", "nickname": "ゆきな", "display_name": "まな", "password_hash": "hashed_password"}
+    {"email": "yukina@example.com", "nickname": "ゆきな", "display_name": "ゆきの", "password_hash": "hashed_password"},
+    {"email": "yuriko@example.com", "nickname": "ゆりこ", "display_name": "ゆりな", "password_hash": "hashed_password"},
+    {"email": "misaki2@example.com", "nickname": "みさき", "display_name": "美咲", "password_hash": "hashed_password"},  
+    {"email": "yukina2@example.com", "nickname": "ゆき", "display_name": "ゆきな", "password_hash": "hashed_password"},
+    {"email": "yuki@example.com", "nickname": "ゆき", "display_name": "ゆき", "password_hash": "hashed_password"},
+    {"email": "mana@example.com", "nickname": "まな", "display_name": "まな", "password_hash": "hashed_password"}
 ]
 
 # ダミー質問データ
