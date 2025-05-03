@@ -1,14 +1,13 @@
 from flask import Flask, render_template
-from app.routes import main  # Blueprint をインポート
-
+from app.routes import main  # ← ルート登録を忘れずに！
 
 def create_app():
     app = Flask(__name__)
-
-    # Blueprint を登録
+    
+    # ルーティング（Blueprint）を登録
     app.register_blueprint(main.bp)
 
-    # 404 エラーハンドラー
+    # 404エラー処理
     @app.errorhandler(404)
     def page_not_found(e):
         return render_template('errors/404.html'), 404
