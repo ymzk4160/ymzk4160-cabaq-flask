@@ -1,11 +1,33 @@
 from datetime import datetime
-# from flask_login import UserMixin  # コメントアウト
-from sqlalchemy.dialects.postgresql import JSON
-from app.extensions import db  # login_managerを削除
+from werkzeug.security import generate_password_hash, check_password_hash
+from app.extensions import db
+from sqlalchemy.orm import relationship
+from sqlalchemy import Boolean, Column, Integer, String, DateTime, Text, ForeignKey
 
-# @login_manager.user_loader  # コメントアウト
-# def load_user(user_id):     # コメントアウト
-#     return User.query.get(int(user_id))  # コメントアウト
-
-class User(db.Model):  # UserMixinを削除
-    # 既存のコード...
+class User(db.Model):
+    __tablename__ = 'users'
+    __table_args__ = {'extend_existing': True}
+    
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    nickname = db.Column(db.String(80), nullable=False)
+    display_name = db.Column(db.String(80))
+    password_hash = db.Column(db.String(255), nullable=False)
+    bio = db.Column(db.Text)
+    avatar_url = db.Column(db.String(255))
+    status = db.Column(db.String(20), default='active')  # active, inactive, banned
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # リレーションシップ（循環参照を避けるためシンプルに）
+    questions = relationship("Question", back_populates="user", foreign_keys="Question.user_id")
+    answers = relationship("Answer", back_populates="user", foreign_keys="Answer.user_id")
+    
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+        
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
+    
+    def __repr__(self):
+        return f'<User {self.nickname}>'
