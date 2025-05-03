@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, render_template
 from app.extensions import db, migrate, bcrypt  # login_managerを削除
 
 def create_app():
