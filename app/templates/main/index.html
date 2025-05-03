@@ -40,7 +40,7 @@
 </section>
 
 
-<!-- カテゴリー（グリッドベースのランダム配置＋アニメーション） -->
+<!-- カテゴリー（グリッドベースのランダム配置＋アニメーション・枠内収まり保証） -->
 <div id="category-container" class="p-2 bg-white shadow relative min-h-[150px]">
   <!-- カテゴリーボタンはJavaScriptで動的に配置されます -->
 </div>
@@ -98,9 +98,13 @@
     allButton.setAttribute('data-category-btn', 'all');
     allButton.textContent = 'すべて';
     
-    // セル内でのランダムな位置（完全左上ではない）
-    const allButtonX = 10 + Math.random() * (cellWidth / 3);
-    const allButtonY = 10 + Math.random() * (cellHeight / 3);
+    // ボタンのサイズを推定（テキスト長に基づく）
+    const allButtonWidth = Math.max(allButton.textContent.length * 10 + 20, 60);
+    const allButtonHeight = 30;
+    
+    // セル内でボタンが収まる範囲でランダムな位置
+    const allButtonX = 10 + Math.random() * (cellWidth - allButtonWidth - 20);
+    const allButtonY = 10 + Math.random() * (cellHeight - allButtonHeight - 20);
     
     allButton.style.left = `${allButtonX}px`;
     allButton.style.top = `${allButtonY}px`;
@@ -120,7 +124,7 @@
       let attempts = 0;
       
       // 空いているセルを探す
-      while (!found && attempts < 100) {
+      while (!found && attempts < 50) {
         row = Math.floor(Math.random() * rows);
         col = Math.floor(Math.random() * columns);
         
@@ -137,18 +141,26 @@
         col = Math.floor(Math.random() * columns);
       }
       
-      // セル内でのランダムな位置（セル全体をカバー）
-      const xOffset = Math.random() * (cellWidth * 0.7); // セル幅の70%までの範囲でランダム
-      const yOffset = Math.random() * (cellHeight * 0.7); // セル高さの70%までの範囲でランダム
-      
       const button = document.createElement('button');
       button.className = `category-button absolute text-sm px-3 py-1 rounded-full ${category.color} shadow-sm`;
       button.setAttribute('onclick', `filterCategory('${category.id}')`);
       button.setAttribute('data-category-btn', category.id);
       button.textContent = category.name;
       
-      button.style.left = `${col * cellWidth + xOffset}px`;
-      button.style.top = `${row * cellHeight + yOffset}px`;
+      // ボタンのサイズを推定（テキスト長に基づく）
+      const buttonWidth = Math.max(category.name.length * 10 + 20, 60);
+      const buttonHeight = 30;
+      
+      // セル内でボタンが確実に収まる範囲でランダムな位置を計算
+      const xOffset = Math.random() * (cellWidth - buttonWidth - 20);
+      const yOffset = Math.random() * (cellHeight - buttonHeight - 20);
+      
+      // 最終的なボタン位置（枠内に収まることを保証）
+      const buttonX = Math.max(10, Math.min(containerWidth - buttonWidth - 10, col * cellWidth + xOffset));
+      const buttonY = Math.max(10, Math.min(containerHeight - buttonHeight - 10, row * cellHeight + yOffset));
+      
+      button.style.left = `${buttonX}px`;
+      button.style.top = `${buttonY}px`;
       
       // ふわふわと浮いているようなアニメーション効果を追加
       const animationDuration = 2 + Math.random() * 2; // 2〜4秒のランダムな時間
@@ -195,7 +207,6 @@
     randomizeCategories();
   }
 </script>
-
 
 
 
