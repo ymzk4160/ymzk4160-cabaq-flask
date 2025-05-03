@@ -1,2 +1,1 @@
-# ルートをインポート
-from app.routes import main
+from . import main
