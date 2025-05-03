@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block title %}サイトについて - キャバ嬢Q&A{% endblock %}
+
+{% block content %}
+<section class="bg-white p-6 rounded-xl shadow my-4">
+  <h1 class="text-2xl font-bold mb-4">サイトについて</h1>
+  
+  <div class="space-y-4">
+    <p>キャバ嬢Q&Aは、キャバクラ嬢・ナイトワーク女子のための匿名Q&A掲示板です。</p>
+    
+    <h2 class="text-xl font-semibold mt-6">サイトの目的</h2>
+    <p>夜の仕事には独特の悩みや疑問があります。でも、誰にでも相談できるわけではないですよね。</p>
+    <p>このサイトは、同じ業界で働く人たちが安心して質問や回答ができる場所を提供するために作られました。</p>
+    
+    <h2 class="text-xl font-semibold mt-6">ご利用にあたって</h2>
+    <ul class="list-disc ml-5 space-y-2">
+      <li>匿名で質問・回答が可能です</li>
+      <li>実名や店舗名の書き込みは禁止しています</li>
+      <li>個人を特定できる情報の投稿は自己責任でお願いします</li>
+      <li>不適切な投稿は管理者の判断で削除される場合があります</li>
+    </ul>
+    
+    <h2 class="text-xl font-semibold mt-6">運営について</h2>
+    <p>このサイトは元キャバ嬢のチームによって運営されています。</p>
+    <p>サイトに関するお問い合わせやご意見は、お問い合わせフォームからお願いします。</p>
+  </div>
+  
+  <div class="mt-8 text-center">
+    <a href="{{ url_for('main.index') }}" class="inline-block bg-pink-400 hover:bg-pink-500 text-white text-sm px-4 py-2 rounded-full">トップページに戻る</a>
+  </div>
+</section>
+{% endblock %}
