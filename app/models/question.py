@@ -3,6 +3,7 @@ from app.extensions import db
 
 class Question(db.Model):
     __tablename__ = 'questions'
+    __table_args__ = {'extend_existing': True}
     
     # 基本情報
     id = db.Column(db.Integer, primary_key=True)
@@ -30,6 +31,7 @@ class Question(db.Model):
 
 class Answer(db.Model):
     __tablename__ = 'answers'
+    __table_args__ = {'extend_existing': True}
     
     # 基本情報
     id = db.Column(db.Integer, primary_key=True)
