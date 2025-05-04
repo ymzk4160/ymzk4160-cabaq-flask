@@ -16,9 +16,9 @@ class Answer(db.Model):
     question_id = db.Column(db.Integer, db.ForeignKey('questions.id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     
-    # リレーションシップ
-    question = relationship("Question", back_populates="answers")
-    user = relationship("User", back_populates="answers", foreign_keys=[user_id])
+    # リレーションシップ（完全修飾パスを使用）
+    question = relationship("app.models.question.Question", back_populates="answers")
+    user = relationship("app.models.user.User", back_populates="answers")
     
     def __repr__(self):
         return f'<Answer {self.id} for Question {self.question_id}>'
