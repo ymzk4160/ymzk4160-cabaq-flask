@@ -1,3 +1,12 @@
+from flask import Blueprint, render_template, redirect, url_for
+from app.extensions import db
+from datetime import datetime, timedelta
+import random
+from app.models import User, Question, Answer
+
+# まず最初にBlueprintを作成
+bp = Blueprint('main', __name__, url_prefix='')
+
 @bp.route('/')
 def index():
     """トップページ"""
@@ -9,3 +18,5 @@ def index():
         recent_questions = []
     
     return render_template('main/index.html', questions=recent_questions)
+
+# 以下、その他のルート定義...
