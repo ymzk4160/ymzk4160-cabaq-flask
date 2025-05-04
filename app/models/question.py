@@ -4,7 +4,7 @@ from sqlalchemy.orm import relationship
 
 class Question(db.Model):
     __tablename__ = 'questions'
-    __table_args__ = {'extend_existing': True}  # 既存テーブル再定義を許可
+    __table_args__ = {'extend_existing': True}
     
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(255), nullable=False)
@@ -17,8 +17,8 @@ class Question(db.Model):
     # 外部キー
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     
-    # シンプルなリレーションシップ定義
-    user = relationship("User", foreign_keys=[user_id])
+    # リレーションシップ（バックレファレンス名を変更）
+    user = relationship("User", foreign_keys=[user_id], backref="user_questions")
     answers = relationship("Answer")
     
     def __repr__(self):
