@@ -1,7 +1,16 @@
+from flask import Blueprint, render_template, current_app
 from sqlalchemy import inspect
 from app.extensions import db
 
-@app.route('/db-info')  # bpではなくappを使用
+# ブループリントを定義
+main = Blueprint('main', __name__)
+
+@main.route('/')
+def index():
+    """トップページ"""
+    return render_template('main/index.html')
+
+@main.route('/db-info')
 def db_info():
     inspector = inspect(db.engine)
     tables = inspector.get_table_names()
