@@ -1,34 +1,25 @@
 from datetime import datetime
-from werkzeug.security import generate_password_hash, check_password_hash
 from app.extensions import db
 from sqlalchemy.orm import relationship
-from sqlalchemy import Boolean, Column, Integer, String, DateTime, Text, ForeignKey
 
-class User(db.Model):
-    __tablename__ = 'users'
+class Question(db.Model):
+    __tablename__ = 'questions'
     __table_args__ = {'extend_existing': True}
     
     id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(120), unique=True, nullable=False)
-    nickname = db.Column(db.String(80), nullable=False)
-    display_name = db.Column(db.String(80))
-    password_hash = db.Column(db.String(255), nullable=False)
-    bio = db.Column(db.Text)
-    avatar_url = db.Column(db.String(255))
-    status = db.Column(db.String(20), default='active')  # active, inactive, banned
+    title = db.Column(db.String(255), nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    category = db.Column(db.String(50))
+    is_deleted = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
-    # リレーションシップ（名前を変更）
-    # questions → user_questions に変更
-    user_questions = relationship("Question", back_populates="user", foreign_keys="Question.user_id")
-    answers = relationship("Answer", back_populates="user", foreign_keys="Answer.user_id")
+    # 外部キー
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     
-    def set_password(self, password):
-        self.password_hash = generate_password_hash(password)
-        
-    def check_password(self, password):
-        return check_password_hash(self.password_hash, password)
+    # リレーションシップ
+    user = relationship("User", foreign_keys=[user_id], back_populates="user_questions")
+    answers = relationship("Answer", back_populates="question")
     
     def __repr__(self):
-        return f'<User {self.nickname}>'
+        return f'<Question {self.id}: {self.title}>'
