@@ -18,7 +18,7 @@ class Answer(db.Model):
     
     # リレーションシップ
     question = relationship("Question", back_populates="answers")
-    user = relationship("User", back_populates="answers", foreign_keys=[user_id])
+    user = relationship("User", back_populates="answers")
     
     def __repr__(self):
         return f'<Answer {self.id} for Question {self.question_id}>'
