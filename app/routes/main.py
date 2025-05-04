@@ -3,9 +3,10 @@ from app.extensions import db
 from datetime import datetime, timedelta
 import random
 from app.models.user import User
-from app.models.question import Question, Answer
+from app.models.question import Question
+from app.models.answer import Answer
 
-# Blueprint を作成
+# Blueprintを作成
 bp = Blueprint('main', __name__)
 
 @bp.route('/')
@@ -53,7 +54,7 @@ def seed_data_route():
                 )
                 db.session.add(question)
                 db.session.flush()
-
+                
                 for j in range(random.randint(1, 3)):
                     answer = Answer(
                         content=f"{category}についての回答です。{j+1}番目の回答です。",
@@ -67,12 +68,6 @@ def seed_data_route():
         return '50件の質問と約100件の回答をデータベースに追加しました！'
     except Exception as e:
         return f'エラーが発生しました: {str(e)}'
-
-@bp.route('/debug-questions')
-def debug_questions():
-    questions = Question.query.all()
-    output = [f"{q.id}: {q.title}（{q.category}） - {len(q.answers)}件の回答" for q in questions]
-    return "<br>".join(output)
 
 @bp.route('/debug-schema')
 def debug_schema():
@@ -89,16 +84,4 @@ def debug_schema():
     result += [f"<li>{c}</li>" for c in describe_model(Answer)]
     result.append("</ul>")
 
-    return "<html><body>" + "\n".join(result) + "</body></html>"
-
-@bp.route('/debug-all-tables')
-def debug_all_tables():
-    tables = db.metadata.tables
-    result = ["<h2>全テーブル構造</h2><ul>"]
-    for table_name, table in tables.items():
-        result.append(f"<li><strong>{table_name}</strong><ul>")
-        for col in table.columns:
-            result.append(f"<li>{col.name}: {col.type}</li>")
-        result.append("</ul></li>")
-    result.append("</ul>")
     return "<html><body>" + "\n".join(result) + "</body></html>"
