@@ -6,7 +6,7 @@ def create_app():
     app = Flask(__name__)
     
     # データベース設定
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'  # SQLiteを使用
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     
     # SQLAlchemyの初期化
