@@ -3,14 +3,14 @@ from sqlalchemy import inspect
 from app.extensions import db
 
 # ブループリントを定義
-main = Blueprint('main', __name__)
+bp = Blueprint('main', __name__)
 
-@main.route('/')
+@bp.route('/')
 def index():
     """トップページ"""
     return render_template('main/index.html')
 
-@main.route('/db-info')
+@bp.route('/db-info')
 def db_info():
     inspector = inspect(db.engine)
     tables = inspector.get_table_names()
