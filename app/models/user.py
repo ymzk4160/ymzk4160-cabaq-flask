@@ -6,7 +6,8 @@ from sqlalchemy import Boolean, Column, Integer, String, DateTime, Text, Foreign
 
 class User(db.Model):
     __tablename__ = 'users'
-
+    __table_args__ = {'extend_existing': True}
+    
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(120), unique=True, nullable=False)
     nickname = db.Column(db.String(80), nullable=False)
@@ -18,9 +19,9 @@ class User(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
-    # リレーションシップ - 完全修飾パスを使用
-    questions = relationship("app.models.question.Question", back_populates="user")
-    answers = relationship("app.models.answer.Answer", back_populates="user")
+    # リレーションシップ（名前を変更）
+    user_questions = relationship("Question", back_populates="user", foreign_keys="Question.user_id")
+    answers = relationship("Answer", back_populates="user", foreign_keys="Answer.user_id")
     
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
