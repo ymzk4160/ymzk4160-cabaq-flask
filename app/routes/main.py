@@ -1,6 +1,8 @@
-@app.route('/db-info')
+from sqlalchemy import inspect
+from app.extensions import db
+
+@bp.route('/db-info')
 def db_info():
-    from sqlalchemy import inspect
     inspector = inspect(db.engine)
     tables = inspector.get_table_names()
     
