@@ -19,9 +19,9 @@ class User(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
-    # リレーションシップ（名前を変更）
-    user_questions = relationship("Question", back_populates="user", foreign_keys="Question.user_id")
-    answers = relationship("Answer", back_populates="user", foreign_keys="Answer.user_id")
+    # リレーションシップ（完全修飾パスを使用）
+    user_questions = relationship("app.models.question.Question", back_populates="user")
+    answers = relationship("app.models.answer.Answer", back_populates="user")
     
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
