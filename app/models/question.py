@@ -1,6 +1,5 @@
 from datetime import datetime
 from app.extensions import db
-from sqlalchemy.orm import relationship
 
 class Question(db.Model):
     __tablename__ = 'questions'
@@ -16,10 +15,6 @@ class Question(db.Model):
     
     # 外部キー
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    
-    # リレーションシップ
-    user = relationship("User", foreign_keys=[user_id], back_populates="user_questions")
-    answers = relationship("Answer", back_populates="question")
     
     def __repr__(self):
         return f'<Question {self.id}: {self.title}>'
