@@ -4,7 +4,6 @@ from sqlalchemy.orm import relationship
 
 class Question(db.Model):
     __tablename__ = 'questions'
-    # テーブルが既に存在する場合は再定義を許可
     __table_args__ = {'extend_existing': True}
     
     id = db.Column(db.Integer, primary_key=True)
@@ -18,8 +17,8 @@ class Question(db.Model):
     # 外部キー
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     
-    # リレーションシップ（循環参照を避けるため文字列で指定）
-    user = relationship("User", foreign_keys=[user_id])
+    # リレーションシップ
+    user = relationship("User", back_populates="questions")
     answers = relationship("Answer", back_populates="question")
     
     def __repr__(self):
