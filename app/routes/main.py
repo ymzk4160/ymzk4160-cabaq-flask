@@ -1,158 +1,524 @@
-from flask import Blueprint, render_template, redirect, url_for
-from app.extensions import db
-from datetime import datetime, timedelta
-import random
-from app.models.user import User
-from app.models.question import Question
-from app.models.answer import Answer
+import os
+from datetime import datetime
+from flask import Flask, render_template
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.dialects.postgresql import JSON
 
-# Blueprintを作成
-bp = Blueprint('main', __name__)
+app = Flask(__name__)
+# データベース設定
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app)
 
-@bp.route('/')
+# ユーザーテーブル
+class User(db.Model):
+    __tablename__ = 'users'
+    
+    # 基本情報
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(255), unique=True)
+    password_hash = db.Column(db.Text)
+    login_type = db.Column(db.String(20))
+    google_id = db.Column(db.String(255))
+    line_id = db.Column(db.String(255))
+    
+    # 表示/プロフィール情報
+    nickname = db.Column(db.String(50), unique=True)
+    display_name = db.Column(db.String(50))
+    avatar_url = db.Column(db.String(255))
+    bio = db.Column(db.Text)
+    birthday = db.Column(db.Date)
+    age = db.Column(db.Integer)
+    
+    # 業界関連情報
+    prefecture = db.Column(db.String(50))
+    area = db.Column(db.String(100))
+    store_name = db.Column(db.String(100))
+    store_type = db.Column(db.String(50))
+    years_in_industry = db.Column(db.Integer)
+    months_in_industry = db.Column(db.Integer)
+    position = db.Column(db.String(50))
+    shift_type = db.Column(db.String(50))
+    specialties = db.Column(db.Text)
+    interests = db.Column(db.Text)
+    
+    # システム設定/管理情報
+    is_paid = db.Column(db.Boolean, default=False)
+    trial_end_date = db.Column(db.DateTime)
+    role = db.Column(db.String(20), default='user')
+    status = db.Column(db.String(20), default='active')
+    trust_level = db.Column(db.Integer, default=0)
+    contribution_points = db.Column(db.Integer, default=0)
+    badge_ids = db.Column(db.Text)
+    
+    # 通知/コミュニケーション設定
+    notification_settings = db.Column(JSON)
+    last_notification_read_at = db.Column(db.DateTime)
+    communication_preference = db.Column(db.String(50))
+    email_verified = db.Column(db.Boolean, default=False)
+    allow_direct_messages = db.Column(db.Boolean, default=True)
+    blocked_user_ids = db.Column(db.Text)
+    
+    # 活動/ログ情報
+    last_login_at = db.Column(db.DateTime)
+    login_count = db.Column(db.Integer, default=0)
+    question_count = db.Column(db.Integer, default=0)
+    answer_count = db.Column(db.Integer, default=0)
+    comment_count = db.Column(db.Integer, default=0)
+    reaction_received_count = db.Column(db.Integer, default=0)
+    last_activity_at = db.Column(db.DateTime)
+    
+    # 管理/メタ情報
+    ip_address = db.Column(db.String(45))
+    user_agent = db.Column(db.Text)
+    referrer = db.Column(db.String(255))
+    remarks = db.Column(db.Text)
+    is_deleted = db.Column(db.Boolean, default=False)
+    deleted_at = db.Column(db.DateTime)
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
+    updated_at = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
+
+# カテゴリテーブル
+class Category(db.Model):
+    __tablename__ = 'categories'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50), nullable=False)
+    slug = db.Column(db.String(50), unique=True)
+    description = db.Column(db.Text)
+    parent_id = db.Column(db.Integer, db.ForeignKey('categories.id'))
+    icon = db.Column(db.String(255))
+    color = db.Column(db.String(20))
+    display_order = db.Column(db.Integer, default=0)
+    is_featured = db.Column(db.Boolean, default=False)
+    is_visible = db.Column(db.Boolean, default=True)
+    meta_title = db.Column(db.String(255))
+    meta_description = db.Column(db.Text)
+    question_count = db.Column(db.Integer, default=0)
+    is_deleted = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
+    updated_at = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
+    
+    # 自己参照リレーション
+    subcategories = db.relationship('Category', backref=db.backref('parent', remote_side=[id]))
+
+# 質問テーブル
+class Question(db.Model):
+    __tablename__ = 'questions'
+    
+    # 基本情報
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    title = db.Column(db.Text, nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    slug = db.Column(db.String(255))
+    
+    # カテゴリとタグ関連
+    category_id = db.Column(db.Integer, db.ForeignKey('categories.id'))
+    sub_category_id = db.Column(db.Integer)
+    
+    # 状態管理
+    status = db.Column(db.String(30), default='published')
+    is_solved = db.Column(db.Boolean, default=False)
+    best_answer_id = db.Column(db.Integer)
+    is_public = db.Column(db.Boolean, default=True)
+    visibility = db.Column(db.String(20), default='public')
+    is_anonymous = db.Column(db.Boolean, default=False)
+    is_sticky = db.Column(db.Boolean, default=False)
+    is_featured = db.Column(db.Boolean, default=False)
+    
+    # 統計情報
+    view_count = db.Column(db.Integer, default=0)
+    unique_view_count = db.Column(db.Integer, default=0)
+    answer_count = db.Column(db.Integer, default=0)
+    reaction_count = db.Column(db.Integer, default=0)
+    helpful_count = db.Column(db.Integer, default=0)
+    thank_count = db.Column(db.Integer, default=0)
+    relate_count = db.Column(db.Integer, default=0)
+    edit_count = db.Column(db.Integer, default=0)
+    
+    # メディア情報
+    has_images = db.Column(db.Boolean, default=False)
+    images = db.Column(JSON)
+    
+    # 管理/メタ情報
+    last_edited_at = db.Column(db.DateTime)
+    last_edited_by = db.Column(db.Integer)
+    ip_address = db.Column(db.String(45))
+    remarks = db.Column(db.Text)
+    is_deleted = db.Column(db.Boolean, default=False)
+    deleted_at = db.Column(db.DateTime)
+    deleted_by = db.Column(db.Integer)
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
+    updated_at = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
+    
+    # リレーション設定
+    user = db.relationship('User', backref=db.backref('questions', lazy=True))
+    category = db.relationship('Category', backref=db.backref('questions', lazy=True))
+
+# 回答テーブル
+class Answer(db.Model):
+    __tablename__ = 'answers'
+    
+    # 基本情報
+    id = db.Column(db.Integer, primary_key=True)
+    question_id = db.Column(db.Integer, db.ForeignKey('questions.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    content = db.Column(db.Text, nullable=False)
+    
+    # 状態管理
+    is_best_answer = db.Column(db.Boolean, default=False)
+    is_anonymous = db.Column(db.Boolean, default=False)
+    is_pinned = db.Column(db.Boolean, default=False)
+    
+    # 統計情報
+    comment_count = db.Column(db.Integer, default=0)
+    reaction_count = db.Column(db.Integer, default=0)
+    helpful_count = db.Column(db.Integer, default=0)
+    thank_count = db.Column(db.Integer, default=0)
+    relate_count = db.Column(db.Integer, default=0)
+    edit_count = db.Column(db.Integer, default=0)
+    
+    # メディア情報
+    has_images = db.Column(db.Boolean, default=False)
+    images = db.Column(JSON)
+    
+    # 管理/メタ情報
+    last_edited_at = db.Column(db.DateTime)
+    last_edited_by = db.Column(db.Integer)
+    ip_address = db.Column(db.String(45))
+    remarks = db.Column(db.Text)
+    is_deleted = db.Column(db.Boolean, default=False)
+    deleted_at = db.Column(db.DateTime)
+    deleted_by = db.Column(db.Integer)
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
+    updated_at = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
+    
+    # リレーション設定
+    question = db.relationship('Question', backref=db.backref('answers', lazy=True))
+    user = db.relationship('User', backref=db.backref('answers', lazy=True))
+
+# 回答コメントテーブル
+class AnswerComment(db.Model):
+    __tablename__ = 'answer_comments'
+    
+    # 基本情報
+    id = db.Column(db.Integer, primary_key=True)
+    answer_id = db.Column(db.Integer, db.ForeignKey('answers.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    content = db.Column(db.Text, nullable=False)
+    
+    # ツリー構造管理
+    parent_id = db.Column(db.Integer, db.ForeignKey('answer_comments.id'))
+    reply_depth = db.Column(db.Integer, default=0)
+    original_answer_id = db.Column(db.Integer)
+    first_reply_user_id = db.Column(db.Integer)
+    
+    # 状態/統計情報
+    is_anonymous = db.Column(db.Boolean, default=False)
+    reaction_count = db.Column(db.Integer, default=0)
+    edit_count = db.Column(db.Integer, default=0)
+    
+    # メディア情報
+    has_images = db.Column(db.Boolean, default=False)
+    images = db.Column(JSON)
+    
+    # 管理/メタ情報
+    last_edited_at = db.Column(db.DateTime)
+    ip_address = db.Column(db.String(45))
+    remarks = db.Column(db.Text)
+    is_deleted = db.Column(db.Boolean, default=False)
+    deleted_at = db.Column(db.DateTime)
+    deleted_by = db.Column(db.Integer)
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
+    updated_at = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
+    
+    # リレーション設定
+    answer = db.relationship('Answer', backref=db.backref('comments', lazy=True))
+    user = db.relationship('User', backref=db.backref('answer_comments', lazy=True))
+    replies = db.relationship('AnswerComment', backref=db.backref('parent_comment', remote_side=[id]))
+
+# タグテーブル
+class Tag(db.Model):
+    __tablename__ = 'tags'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50), nullable=False, unique=True)
+    slug = db.Column(db.String(50), unique=True)
+    description = db.Column(db.Text)
+    icon = db.Column(db.String(255))
+    color = db.Column(db.String(20))
+    question_count = db.Column(db.Integer, default=0)
+    is_featured = db.Column(db.Boolean, default=False)
+    is_visible = db.Column(db.Boolean, default=True)
+    created_by = db.Column(db.Integer, db.ForeignKey('users.id'))
+    is_deleted = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
+    updated_at = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
+
+# 質問タグテーブル
+class QuestionTag(db.Model):
+    __tablename__ = 'question_tags'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    question_id = db.Column(db.Integer, db.ForeignKey('questions.id'), nullable=False)
+    tag_id = db.Column(db.Integer, db.ForeignKey('tags.id'), nullable=False)
+    created_by = db.Column(db.Integer, db.ForeignKey('users.id'))
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
+    
+    # リレーション設定
+    question = db.relationship('Question', backref=db.backref('question_tags', lazy=True))
+    tag = db.relationship('Tag', backref=db.backref('question_tags', lazy=True))
+
+# リアクションテーブル
+class Reaction(db.Model):
+    __tablename__ = 'reactions'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    target_type = db.Column(db.String(20), nullable=False)
+    target_id = db.Column(db.Integer, nullable=False)
+    reaction_type = db.Column(db.String(20), nullable=False)
+    is_visible = db.Column(db.Boolean, default=True)
+    ip_address = db.Column(db.String(45))
+    remarks = db.Column(db.Text)
+    is_deleted = db.Column(db.Boolean, default=False)
+    deleted_at = db.Column(db.DateTime)
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
+    
+    # リレーション設定
+    user = db.relationship('User', backref=db.backref('reactions', lazy=True))
+
+# 通知テーブル
+class Notification(db.Model):
+    __tablename__ = 'notifications'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    from_user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    type = db.Column(db.String(50), nullable=False)
+    title = db.Column(db.String(255))
+    content = db.Column(db.Text)
+    target_type = db.Column(db.String(20))
+    target_id = db.Column(db.Integer)
+    is_read = db.Column(db.Boolean, default=False)
+    read_at = db.Column(db.DateTime)
+    is_emailed = db.Column(db.Boolean, default=False)
+    is_push_sent = db.Column(db.Boolean, default=False)
+    is_line_sent = db.Column(db.Boolean, default=False)
+    is_deleted = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
+    
+    # リレーション設定
+    user = db.relationship('User', foreign_keys=[user_id], backref=db.backref('notifications', lazy=True))
+    from_user = db.relationship('User', foreign_keys=[from_user_id])
+
+# 決済テーブル
+class Payment(db.Model):
+    __tablename__ = 'payments'
+    
+    # 基本情報
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    plan_type = db.Column(db.String(50), nullable=False)
+    amount = db.Column(db.DECIMAL(10, 2), nullable=False)
+    currency = db.Column(db.String(3), default='JPY')
+    
+    # Stripe連携情報
+    stripe_customer_id = db.Column(db.String(255))
+    stripe_subscription_id = db.Column(db.String(255))
+    stripe_payment_method_id = db.Column(db.String(255))
+    stripe_invoice_id = db.Column(db.String(255))
+    
+    # 支払い状態
+    status = db.Column(db.String(50), default='active')
+    is_active = db.Column(db.Boolean, default=True)
+    payment_method = db.Column(db.String(50))
+    
+    # 日時情報
+    start_date = db.Column(db.DateTime)
+    trial_end_date = db.Column(db.DateTime)
+    next_billing_date = db.Column(db.DateTime)
+    cancel_at = db.Column(db.DateTime)
+    canceled_at = db.Column(db.DateTime)
+    last_payment_at = db.Column(db.DateTime)
+    
+    # 通知/管理情報
+    trial_reminder_sent = db.Column(db.Boolean, default=False)
+    cancel_reason = db.Column(db.Text)
+    remarks = db.Column(db.Text)
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
+    updated_at = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
+    
+    # リレーション設定
+    user = db.relationship('User', backref=db.backref('payments', lazy=True))
+
+# 決済履歴テーブル
+class PaymentHistory(db.Model):
+    __tablename__ = 'payment_histories'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    payment_id = db.Column(db.Integer, db.ForeignKey('payments.id'))
+    transaction_type = db.Column(db.String(50), nullable=False)
+    amount = db.Column(db.DECIMAL(10, 2), nullable=False)
+    currency = db.Column(db.String(3), default='JPY')
+    stripe_invoice_id = db.Column(db.String(255))
+    stripe_payment_intent_id = db.Column(db.String(255))
+    stripe_charge_id = db.Column(db.String(255))
+    payment_method = db.Column(db.String(50))
+    status = db.Column(db.String(50))
+    error_message = db.Column(db.Text)
+    receipt_url = db.Column(db.String(255))
+    receipt_number = db.Column(db.String(50))
+    remarks = db.Column(db.Text)
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
+    
+    # リレーション設定
+    user = db.relationship('User', backref=db.backref('payment_histories', lazy=True))
+    payment = db.relationship('Payment', backref=db.backref('histories', lazy=True))
+
+# 通報テーブル
+class Report(db.Model):
+    __tablename__ = 'reports'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    target_type = db.Column(db.String(20), nullable=False)
+    target_id = db.Column(db.Integer, nullable=False)
+    reason_type = db.Column(db.String(50))
+    reason = db.Column(db.Text)
+    status = db.Column(db.String(20), default='pending')
+    priority = db.Column(db.String(20), default='medium')
+    handled_by = db.Column(db.Integer, db.ForeignKey('users.id'))
+    resolved_at = db.Column(db.DateTime)
+    action_taken = db.Column(db.String(255))
+    internal_notes = db.Column(db.Text)
+    is_deleted = db.Column(db.Boolean, default=False)
+    remarks = db.Column(db.Text)
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
+    updated_at = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
+    
+    # リレーション設定
+    user = db.relationship('User', foreign_keys=[user_id], backref=db.backref('reports', lazy=True))
+    handler = db.relationship('User', foreign_keys=[handled_by])
+
+# 閲覧履歴テーブル
+class View(db.Model):
+    __tablename__ = 'views'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    question_id = db.Column(db.Integer, db.ForeignKey('questions.id'), nullable=False)
+    session_id = db.Column(db.String(255))
+    ip_address = db.Column(db.String(45))
+    user_agent = db.Column(db.Text)
+    referrer = db.Column(db.String(255))
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
+    
+    # リレーション設定
+    user = db.relationship('User', backref=db.backref('views', lazy=True))
+    question = db.relationship('Question', backref=db.backref('views', lazy=True))
+
+# バッジテーブル
+class Badge(db.Model):
+    __tablename__ = 'badges'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.Text)
+    image_url = db.Column(db.String(255))
+    category = db.Column(db.String(50))
+    level = db.Column(db.String(20))
+    requirement = db.Column(db.Text)
+    is_hidden = db.Column(db.Boolean, default=False)
+    is_deleted = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
+    updated_at = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
+
+# ユーザーバッジテーブル
+class UserBadge(db.Model):
+    __tablename__ = 'user_badges'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    badge_id = db.Column(db.Integer, db.ForeignKey('badges.id'), nullable=False)
+    awarded_at = db.Column(db.DateTime, server_default=db.func.now())
+    awarded_by = db.Column(db.Integer, db.ForeignKey('users.id'))
+    is_displayed = db.Column(db.Boolean, default=True)
+    notes = db.Column(db.Text)
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
+    
+    # リレーション設定
+    user = db.relationship('User', foreign_keys=[user_id], backref=db.backref('badges', lazy=True))
+    badge = db.relationship('Badge', backref=db.backref('users', lazy=True))
+    awarder = db.relationship('User', foreign_keys=[awarded_by])
+
+# サイト設定テーブル
+class Setting(db.Model):
+    __tablename__ = 'settings'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    key = db.Column(db.String(100), nullable=False, unique=True)
+    value = db.Column(db.Text)
+    type = db.Column(db.String(20))
+    group = db.Column(db.String(50))
+    description = db.Column(db.Text)
+    is_public = db.Column(db.Boolean, default=True)
+    updated_by = db.Column(db.Integer, db.ForeignKey('users.id'))
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
+    updated_at = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
+
+
+@app.route('/')
 def index():
-    """トップページ"""
-    # データベースから最新の質問を取得
-    recent_questions = Question.query.filter_by(is_deleted=False).order_by(Question.created_at.desc()).limit(10).all()
-    return render_template('main/index.html', questions=recent_questions)
+    return render_template('index.html')
 
-@bp.route('/about')
-def about():
-    """サイト紹介ページ"""
-    return render_template('main/about.html')
-
-@bp.route('/setup-db')
+@app.route('/setup-db')
 def setup_db():
-    """データベーステーブルの作成"""
+    # データベーステーブル作成（初回のみ）
     db.create_all()
-    return 'データベーステーブルが作成されました！'
+    return 'Database tables created!'
 
-@bp.route('/seed-data')
-def seed_data_route():
+@app.route('/db-check')
+def db_check():
     try:
-        # データベースをクリア
-        db.session.query(Answer).delete()
-        db.session.query(Question).delete()
-        db.session.query(User).delete()
-        db.session.commit()
+        # テーブルの情報を取得
+        users = User.query.all()
+        questions = Question.query.all()
+        categories = Category.query.all()
         
-        # ユーザーの追加（20名）
-        users = []
-        user_names = [
-            'れいな', 'まお', 'さくら', 'ゆきな', 'みう', 
-            'えれな', 'あやか', 'りょう', 'みれい', 'かれん',
-            'るか', 'あいり', 'ゆめ', 'まりあ', 'ななみ',
-            'ありさ', 'りな', 'ここ', 'じゅり', 'まりな'
-        ]
+        # HTML形式で表示
+        html = '<h1>データベース内容確認</h1>'
         
-        for i, name in enumerate(user_names):
-            user = User(
-                email=f"user{i+1}@example.com",
-                nickname=name,
-                display_name=name,
-                password_hash="hashed_password",
-                status="active"
-            )
-            db.session.add(user)
-            users.append(user)
+        html += '<h2>ユーザーテーブル</h2>'
+        html += f'<p>登録ユーザー数: {len(users)}</p>'
+        if users:
+            html += '<table border="1"><tr><th>ID</th><th>メール</th><th>ニックネーム</th><th>有料会員</th><th>作成日時</th></tr>'
+            for user in users:
+                html += f'<tr><td>{user.id}</td><td>{user.email}</td><td>{user.nickname}</td><td>{"はい" if user.is_paid else "いいえ"}</td><td>{user.created_at}</td></tr>'
+            html += '</table>'
         
-        db.session.commit()
+        html += '<h2>カテゴリテーブル</h2>'
+        html += f'<p>カテゴリ数: {len(categories)}</p>'
+        if categories:
+            html += '<table border="1"><tr><th>ID</th><th>名前</th><th>スラッグ</th><th>表示順</th></tr>'
+            for category in categories:
+                html += f'<tr><td>{category.id}</td><td>{category.name}</td><td>{category.slug}</td><td>{category.display_order}</td></tr>'
+            html += '</table>'
         
-        # 質問データ
-        questions_data = [
-            # 初心者カテゴリ
-            {
-                'title': '初めてのキャバクラ勤務、何を準備すべき？',
-                'content': '来週から初めてキャバクラで働きます。ドレスやメイク道具など、最低限必要なものを教えてください。何から揃えるべきでしょうか？',
-                'category': '初心者',
-                'user_index': 0,
-                'answers': [
-                    {'content': 'まずは基本的なメイク道具とシンプルな黒のドレス1着があれば大丈夫です。最初は高すぎるものに手を出さず、仕事に慣れてから徐々に増やしていくことをお勧めします。', 'user_index': 4},
-                    {'content': '化粧ポーチに入れておくと便利なのは、リップ、コンシーラー、つけまつ毛の接着剤です。お直しで必須ですよ。あとは店によってはヘアセットがあるので、そこは確認してみてください。', 'user_index': 14}
-                ]
-            },
-            {
-                'title': '大箱と小箱、初心者はどちらがいい？',
-                'content': 'これからキャバ嬢デビューしようと思ってます。大きい店と小さい店、どちらから始めるべきでしょうか？それぞれのメリット・デメリットを教えてください。',
-                'category': '初心者',
-                'user_index': 1,
-                'answers': [
-                    {'content': '小箱の方が先輩との距離が近く、教えてもらいやすいです。大箱は競争が激しいけど稼げるチャンスは大きいです。私は最初小箱で経験積んでから大箱に移りました。', 'user_index': 8},
-                    {'content': '自分の性格も大事です。人見知りなら小箱から、社交的で積極的なら大箱もアリです。小箱は常連さんが多いので、安定した収入が得やすいというメリットもあります。', 'user_index': 16}
-                ]
-            },
-            
-            # 営業カテゴリ
-            {
-                'title': '売上アップのための会話術、おすすめは？',
-                'content': '最近売上が伸び悩んでいます。お客様との会話を盛り上げるコツや、ドリンクを注文してもらうきっかけづくりについてアドバイスください。',
-                'category': '営業',
-                'user_index': 2,
-                'answers': [
-                    {'content': 'お客様の話をしっかり聞くことが一番です。相手の趣味や仕事の話を掘り下げて、「詳しいですね！」と褒めると喜ばれます。そこから「乾杯しましょう」と自然に注文に繋げられます。', 'user_index': 11},
-                    {'content': '私はお酒のストーリーを話すようにしています。「このカクテルは○○な思い出があって」とか「このワイン、先日知ったんですけど〜」という感じで興味を持ってもらえると注文につながります。', 'user_index': 9}
-                ]
-            },
-            {
-                'title': '同伴のお誘いのタイミングと方法',
-                'content': '同伴のお誘いって、どのタイミングでどう切り出すのが効果的ですか？強引すぎず自然に誘える方法を知りたいです。',
-                'category': '営業',
-                'user_index': 3,
-                'answers': [
-                    {'content': '次の来店日を聞いたときに「その日のお仕事終わり、ご一緒できたら嬉しいです」と誘うのがスムーズです。強引さがなく、お客様も考える時間があります。', 'user_index': 18},
-                    {'content': 'お客様の好きな食べ物や行きたいお店の話から「今度ご一緒しませんか？」と繋げるのも自然です。あとは「〇〇さんと一緒にディナーしたいなぁ」と願望を伝えておくと、向こうから誘ってくれることも。', 'user_index': 13}
-                ]
-            },
-            
-            # 出勤カテゴリ
-            {
-                'title': '効率的なシフトの組み方は？',
-                'content': '週4〜5で働いていますが、どういう曜日の組み合わせが効率良いですか？売上と体力のバランスを考えた理想的な出勤パターンを教えてください。',
-                'category': '出勤',
-                'user_index': 4,
-                'answers': [
-                    {'content': '金土は必須です。あとは水曜も意外と穴場です。私のおすすめは「水・金・土・日または月」の4出勤です。連休明けの月曜も意外といいですよ。', 'user_index': 7},
-                    {'content': '体力的には連続2日以上の出勤は避けた方がいいです。間に休みを入れると長く続けられます。あと月初と月末は給料日前後なので忙しいです。', 'user_index': 15}
-                ]
-            },
-            {
-                'title': '体調不良での当日欠勤、皆さんどうしてる？',
-                'content': '急な体調不良で欠勤することになった場合、どう連絡するのがマナーですか？罰金などある店舗が多いと思いますが、どう対処してますか？',
-                'category': '出勤',
-                'user_index': 5,
-                'answers': [
-                    {'content': 'できるだけ早く連絡することが大事です。遅くとも出勤の3時間前までには。ちゃんと理由も伝えて、次回必ず出勤することを伝えると印象が違います。', 'user_index': 1},
-                    {'content': '本当に体調が悪いときは仕方ないです。でも頻繁に休むとお店からの信用も客層も下がります。私は年に1〜2回しか休まないようにしています。', 'user_index': 8}
-                ]
-            }
-        ]
+        html += '<h2>質問テーブル</h2>'
+        html += f'<p>質問数: {len(questions)}</p>'
+        if questions:
+            html += '<table border="1"><tr><th>ID</th><th>ユーザーID</th><th>タイトル</th><th>カテゴリ</th><th>作成日時</th></tr>'
+            for question in questions:
+                html += f'<tr><td>{question.id}</td><td>{question.user_id}</td><td>{question.title}</td><td>{question.category_id}</td><td>{question.created_at}</td></tr>'
+            html += '</table>'
         
-        # 質問と回答を追加
-        for i, q_data in enumerate(questions_data):
-            # 質問を作成
-            question = Question(
-                title=q_data['title'],
-                content=q_data['content'],
-                category=q_data['category'],
-                is_deleted=False,
-                created_at=datetime.utcnow() - timedelta(days=random.randint(1, 30)),
-                user_id=users[q_data['user_index']].id
-            )
-            db.session.add(question)
-            db.session.flush()  # IDを取得するためにフラッシュ
-            
-            # 回答を追加
-            for ans_data in q_data['answers']:
-                answer = Answer(
-                    content=ans_data['content'],
-                    question_id=question.id,
-                    user_id=users[ans_data['user_index']].id,
-                    created_at=question.created_at + timedelta(hours=random.randint(1, 48))
-                )
-                db.session.add(answer)
-        
-        db.session.commit()
-        return '質問と回答をデータベースに追加しました！詳細なダミーデータが反映されました。'
+        return html
     except Exception as e:
-        db.session.rollback()
-        return f'エラーが発生しました: {str(e)}'
+        return f'エラー: {str(e)}'
+
+if __name__ == '__main__':
+    port = int(os.environ.get('PORT', 10000))
+    app.run(host='0.0.0.0', port=port)
