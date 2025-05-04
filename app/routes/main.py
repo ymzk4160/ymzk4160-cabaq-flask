@@ -1,22 +1,23 @@
-from flask import Blueprint, render_template, redirect, url_for
-from app.extensions import db
-from datetime import datetime, timedelta
-import random
-from app.models import User, Question, Answer
-
-# まず最初にBlueprintを作成
-bp = Blueprint('main', __name__, url_prefix='')
-
-@bp.route('/')
-def index():
-    """トップページ"""
-    # データベースから最新の質問を取得
+@bp.route('/check-db')
+def check_db():
+    """データベースの内容を確認"""
     try:
-        recent_questions = Question.query.filter_by(is_deleted=False).order_by(Question.created_at.desc()).limit(10).all()
+        users = User.query.all()
+        questions = Question.query.all()
+        answers = Answer.query.all()
+        
+        result = f"データベース内容:<br>"
+        result += f"ユーザー数: {len(users)}<br>"
+        result += f"質問数: {len(questions)}<br>"
+        result += f"回答数: {len(answers)}<br>"
+        
+        if users:
+            result += f"<br>ユーザーサンプル: {users[0].nickname}<br>"
+        if questions:
+            result += f"<br>質問サンプル: {questions[0].title}<br>"
+        if answers:
+            result += f"<br>回答サンプル: {answers[0].content[:30]}...<br>"
+        
+        return result
     except Exception as e:
-        print(f"エラー発生: {str(e)}")
-        recent_questions = []
-    
-    return render_template('main/index.html', questions=recent_questions)
-
-# 以下、その他のルート定義...
+        return f'エラーが発生しました: {str(e)}'
