@@ -2,7 +2,6 @@ from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 from app.extensions import db
 from sqlalchemy.orm import relationship
-from sqlalchemy import Boolean, Column, Integer, String, DateTime, Text, ForeignKey
 
 class User(db.Model):
     __tablename__ = 'users'
@@ -20,8 +19,8 @@ class User(db.Model):
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
     # リレーションシップ（循環参照を避けるためシンプルに）
-    questions = relationship("Question", back_populates="user", foreign_keys="Question.user_id")
-    answers = relationship("Answer", back_populates="user", foreign_keys="Answer.user_id")
+    questions = relationship("Question", back_populates="user")
+    answers = relationship("Answer", back_populates="user")
     
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
