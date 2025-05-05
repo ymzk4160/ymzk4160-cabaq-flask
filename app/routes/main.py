@@ -12,33 +12,41 @@ def index():
 
 @bp.route('/db-info')
 def db_info():
-    # アプリケーションコンテキスト内でデータベースにアクセス
-    with current_app.app_context():
+    tables = []
+    try:
+        from sqlalchemy import inspect
         inspector = inspect(db.engine)
         tables = inspector.get_table_names()
-        
-        html = '<h1>データベーステーブル一覧</h1>'
-        html += f'<p>テーブル数: {len(tables)}</p>'
-        html += '<ul>'
-        
-        for table in tables:
-            html += f'<li><h3>{table}</h3>'
+    except Exception as e:
+        return f'データベース接続エラー: {str(e)}'
+    
+    html = '<h1>データベーステーブル一覧</h1>'
+    html += f'<p>テーブル数: {len(tables)}</p>'
+    html += '<ul>'
+    
+    for table in tables:
+        html += f'<li><h3>{table}</h3>'
+        try:
             html += '<table border="1"><tr><th>カラム名</th><th>タイプ</th><th>NULL可</th></tr>'
             
             for column in inspector.get_columns(table):
                 html += f'<tr><td>{column["name"]}</td><td>{column["type"]}</td><td>{"はい" if column.get("nullable") else "いいえ"}</td></tr>'
             
-            html += '</table></li>'
+            html += '</table>'
+        except Exception as column_err:
+            html += f'<p>カラム情報の取得中にエラー: {str(column_err)}</p>'
         
-        html += '</ul>'
+        html += '</li>'
+    
+    html += '</ul>'
     return html
 
 @bp.route('/setup-db')
 def setup_db():
-    # アプリケーションコンテキスト内でデータベースにアクセス
-    with current_app.app_context():
-        # 既存のテーブルを全て削除
+    try:
+        # データベースを操作
         db.drop_all()
-        # 新しいテーブルを作成
         db.create_all()
-    return 'データベーステーブルを全て再作成しました！'
+        return 'データベーステーブルを全て再作成しました！'
+    except Exception as e:
+        return f'テーブル作成エラー: {str(e)}'
