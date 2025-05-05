@@ -1,6 +1,7 @@
-from flask import Blueprint, render_template
+from flask import Blueprint, render_template, current_app
 from app.models.question import Question
 from app.models.answer import Answer
+from app.models.category import Category
 from app.extensions import db
 
 bp = Blueprint('main', __name__)
@@ -9,6 +10,9 @@ bp = Blueprint('main', __name__)
 def index():
     """トップページ"""
     try:
+        # カテゴリー一覧を取得
+        categories = Category.query.all()
+        
         # データベースから質問を取得
         db_questions = Question.query.filter_by(is_deleted=False).order_by(Question.created_at.desc()).limit(10).all()
         
@@ -30,7 +34,7 @@ def index():
                 'answers': answers_list
             })
         
-        return render_template('main/index.html', questions=questions)
+        return render_template('main/index.html', questions=questions, categories=categories)
     except Exception as e:
         # エラーが発生した場合はエラーメッセージを表示
         return f"<h1>データベース接続エラー</h1><p>{str(e)}</p>"
@@ -55,13 +59,25 @@ def debug():
             html += f"<li>{table}</li>"
         html += "</ul>"
         
+        # カテゴリー情報の表示
+        categories = Category.query.all()
+        if categories:
+            html += "<h2>カテゴリー一覧</h2>"
+            html += "<ul>"
+            for cat in categories:
+                html += f"<li>{cat.id}: {cat.name}</li>"
+            html += "</ul>"
+        else:
+            html += "<p>カテゴリーが見つかりません。</p>"
+        
         # Question取得テスト
         questions = Question.query.limit(5).all()
         if questions:
             html += "<h2>質問データテスト</h2>"
             html += "<ul>"
             for q in questions:
-                html += f"<li>{q.id}: {q.title}</li>"
+                category_name = q.category.name if q.category else "未分類"
+                html += f"<li>{q.id}: {q.title} (カテゴリー: {category_name})</li>"
             html += "</ul>"
         else:
             html += "<p>質問データがありません。データベースにデータを投入してください。</p>"
