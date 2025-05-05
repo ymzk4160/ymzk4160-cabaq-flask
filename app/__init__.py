@@ -17,4 +17,5 @@ def create_app():
     from app.routes.data import bp as data_bp
     app.register_blueprint(data_bp)
     
+    # アプリケーションを返す
     return app
