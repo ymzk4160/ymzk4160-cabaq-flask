@@ -33,24 +33,6 @@ def db_info():
 
 @bp.route('/setup-db')
 def setup_db():
-    # まず、すべてのモデルをインポートする
-    from app.models.user import User
-    from app.models.category import Category
-    from app.models.question import Question
-    from app.models.answer import Answer
-    from app.models.answer_comment import AnswerComment
-    from app.models.tag import Tag
-    from app.models.question_tag import QuestionTag
-    from app.models.reaction import Reaction
-    from app.models.notification import Notification
-    from app.models.payment import Payment
-    from app.models.payment_history import PaymentHistory
-    from app.models.report import Report
-    from app.models.view import View
-    from app.models.badge import Badge
-    from app.models.user_badge import UserBadge
-    from app.models.setting import Setting
-    
     # 既存のテーブルを全て削除
     db.drop_all()
     # 新しいテーブルを作成
