@@ -14,7 +14,7 @@ def index():
         categories = Category.query.all()
         
         # データベースから質問を取得
-        db_questions = Question.query.filter_by(is_deleted=False).order_by(Question.created_at.desc()).limit(10).all()
+        db_questions = Question.query.filter_by(is_deleted=False).order_by(Question.created_at.desc()).limit(100).all()
         
         # テンプレート用に整形
         questions = []
