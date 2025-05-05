@@ -39,52 +39,40 @@
   </button>
 </section>
 
-<!-- カテゴリー（横2段レイアウト・文字数バランス最適化） -->
+<!-- カテゴリー（横2段レイアウト・DB連携） -->
 <div class="p-2 bg-white shadow">
-<!-- 1段目 -->
-    <div class="flex justify-left space-x-2 mb-2">
+  <div class="flex justify-left space-x-2 mb-2">
     <button onclick="filterCategory('all')" class="category-button bg-pink-400 text-white text-sm px-3 py-1 rounded-full" data-category-btn="all">すべて</button>
   </div>
-<!-- 2段目 -->
-  <div class="flex justify-center space-x-2 mb-2">
-    <button onclick="filterCategory('初心者')" class="category-button bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full" data-category-btn="初心者">初心者</button>
-    <button onclick="filterCategory('営業')" class="category-button bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full" data-category-btn="営業">営業</button>
-    <button onclick="filterCategory('出勤')" class="category-button bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full" data-category-btn="出勤">出勤</button>
-    <button onclick="filterCategory('メンタル')" class="category-button bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full" data-category-btn="メンタル">メンタル</button>
-    <button onclick="filterCategory('店不満')" class="category-button bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full" data-category-btn="店不満">店への不満</button>
-  </div>
-<!-- 3段目 -->
-  <div class="flex justify-center space-x-2">
-    <button onclick="filterCategory('身バレ')" class="category-button bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full" data-category-btn="身バレ">身バレ</button>
-    <button onclick="filterCategory('バースデイ')" class="category-button bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full" data-category-btn="バースデイ">バースデイ</button>
-    <button onclick="filterCategory('美容')" class="category-button bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full" data-category-btn="美容">美容</button>
-    <button onclick="filterCategory('恋愛')" class="category-button bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full" data-category-btn="恋愛">恋愛</button>
-    <button onclick="filterCategory('プライベート')" class="category-button bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full" data-category-btn="プライベート">プライベート</button>
+  <div class="flex flex-wrap gap-2 justify-start">
+    {% for category in categories %}
+      <button onclick="filterCategory('{{ category.name }}')" class="category-button bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full" data-category-btn="{{ category.name }}">{{ category.name }}</button>
+    {% endfor %}
   </div>
 </div>
 
 <!-- 最新Q&Aリスト -->
-  <section class="p-3">
-    <h2 class="text-lg font-bold mb-3">📌 最新の質問（{{ questions|length }}件）</h2>
-    <div class="space-y-3">
-      {% if questions %}
-        {% for question in questions %}
-          <div class="qa-item bg-white p-3 rounded-xl shadow" data-category="{{ question.category }}">
-            <h3 class="font-semibold text-base">Q. {{ question.title }}</h3>
-            <p class="text-xs text-gray-500 mb-1">💬 回答数：{{ question.answer_count }}件</p>
-            {% if question.answers %}
-              <p class="mt-1 text-sm text-gray-800">A. {{ question.answers[0].content|truncate(50) }}</p>
-            {% else %}
-              <p class="mt-1 text-sm text-gray-500 italic">まだ回答がありません。</p>
-            {% endif %}
-          </div>
-        {% endfor %}
-      {% else %}
-        <div class="text-center py-4 bg-white rounded-xl shadow">
-          <p class="text-gray-500">まだ質問がありません。</p>
-          <button class="mt-2 bg-pink-400 hover:bg-pink-500 text-white text-sm px-6 py-2 rounded-full">最初の質問を投稿する</button>
+<section class="p-3">
+  <h2 class="text-lg font-bold mb-3">📌 最新の質問（{{ questions|length }}件）</h2>
+  <div class="space-y-3">
+    {% if questions %}
+      {% for question in questions %}
+        <div class="qa-item bg-white p-3 rounded-xl shadow" data-category="{{ question.category }}">
+          <h3 class="font-semibold text-base">Q. {{ question.title }}</h3>
+          <p class="text-xs text-gray-500 mb-1">💬 回答数：{{ question.answer_count }}件</p>
+          {% if question.answers %}
+            <p class="mt-1 text-sm text-gray-800">A. {{ question.answers[0].content|truncate(50) }}</p>
+          {% else %}
+            <p class="mt-1 text-sm text-gray-500 italic">まだ回答がありません。</p>
+          {% endif %}
         </div>
-      {% endif %}
-    </div>
-  </section>
+      {% endfor %}
+    {% else %}
+      <div class="text-center py-4 bg-white rounded-xl shadow">
+        <p class="text-gray-500">まだ質問がありません。</p>
+        <button class="mt-2 bg-pink-400 hover:bg-pink-500 text-white text-sm px-6 py-2 rounded-full">最初の質問を投稿する</button>
+      </div>
+    {% endif %}
+  </div>
+</section>
 {% endblock %}
