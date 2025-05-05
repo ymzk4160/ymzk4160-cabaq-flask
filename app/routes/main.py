@@ -34,7 +34,7 @@ def index():
         return render_template('main/index.html', questions=questions)
     except Exception as e:
         # エラーが発生した場合はエラーメッセージを表示
-        return f"<h1>データベースエラー</h1><p>{str(e)}</p>"
+        return f"<h1>データベース接続エラー</h1><p>{str(e)}</p>"
 
 @bp.route('/debug')
 def debug():
