@@ -38,35 +38,35 @@ def create_app():
     from app.routes.data import bp as data_bp
     app.register_blueprint(data_bp)
     
-    # 他のブループリントも登録
-    from app.routes.auth import bp as auth_bp
-    app.register_blueprint(auth_bp)
+    # 以下の存在しないブループリントは一時的にコメントアウト
+    # from app.routes.auth import bp as auth_bp
+    # app.register_blueprint(auth_bp)
     
-    from app.routes.admin import bp as admin_bp
-    app.register_blueprint(admin_bp)
+    # from app.routes.admin import bp as admin_bp
+    # app.register_blueprint(admin_bp)
     
-    from app.routes.user import bp as user_bp
-    app.register_blueprint(user_bp)
+    # from app.routes.user import bp as user_bp
+    # app.register_blueprint(user_bp)
     
-    from app.routes.question import bp as question_bp
-    app.register_blueprint(question_bp)
+    # from app.routes.question import bp as question_bp
+    # app.register_blueprint(question_bp)
     
-    from app.routes.answer import bp as answer_bp
-    app.register_blueprint(answer_bp)
+    # from app.routes.answer import bp as answer_bp
+    # app.register_blueprint(answer_bp)
     
-    from app.routes.comment import bp as comment_bp
-    app.register_blueprint(comment_bp)
+    # from app.routes.comment import bp as comment_bp
+    # app.register_blueprint(comment_bp)
     
-    from app.routes.search import bp as search_bp
-    app.register_blueprint(search_bp)
+    # from app.routes.search import bp as search_bp
+    # app.register_blueprint(search_bp)
     
-    from app.routes.notification import bp as notification_bp
-    app.register_blueprint(notification_bp)
+    # from app.routes.notification import bp as notification_bp
+    # app.register_blueprint(notification_bp)
     
-    from app.routes.payment import bp as payment_bp
-    app.register_blueprint(payment_bp)
+    # from app.routes.payment import bp as payment_bp
+    # app.register_blueprint(payment_bp)
     
-    from app.routes.message import bp as message_bp
-    app.register_blueprint(message_bp)
+    # from app.routes.message import bp as message_bp
+    # app.register_blueprint(message_bp)
     
     return app
