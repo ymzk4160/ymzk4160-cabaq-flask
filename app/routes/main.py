@@ -1,5 +1,7 @@
 from flask import Blueprint, render_template
 from app.models.question import Question
+from app.models.answer import Answer
+from app.extensions import db
 
 bp = Blueprint('main', __name__)
 
@@ -10,7 +12,7 @@ def index():
         # データベースから質問を取得
         db_questions = Question.query.filter_by(is_deleted=False).order_by(Question.created_at.desc()).limit(10).all()
         
-        # テンプレート用に整形（ダミーデータと同じ構造にする）
+        # テンプレート用に整形
         questions = []
         for q in db_questions:
             category_name = q.category.name if q.category else "未分類"
@@ -44,7 +46,6 @@ def debug():
         
         # テーブル情報
         from sqlalchemy import inspect
-        from app.extensions import db
         inspector = inspect(db.engine)
         tables = inspector.get_table_names()
         
