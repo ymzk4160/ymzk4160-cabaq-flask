@@ -1,23 +1,29 @@
-from flask import Flask, render_template
-from app.routes import main
-from app.extensions import db
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+# 他のインポート
+
+# データベースオブジェクトを作成
+db = SQLAlchemy()
 
 def create_app():
     app = Flask(__name__)
-    
-    # データベース設定
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
+    # アプリケーション設定
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://...'  # 実際の接続URI
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     
-    # SQLAlchemyの初期化
+    # データベースを初期化
     db.init_app(app)
     
-    # Blueprintを登録
-    app.register_blueprint(main.bp)
+    # ここでモデルをインポート（循環インポートを避けるため、関数内でインポート）
+    # これが重要な部分です！
+    from app.models.user import User
+    from app.models.question import Question
+    from app.models.answer import Answer
+    from app.models.category import Category
+    # その他必要なモデルをすべてインポート
     
-    # 404エラーハンドラー
-    @app.errorhandler(404)
-    def page_not_found(e):
-        return render_template('errors/404.html'), 404
+    # ブループリントを登録
+    from app.routes import main
+    app.register_blueprint(main.bp)
     
     return app
