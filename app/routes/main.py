@@ -12,29 +12,31 @@ def index():
 
 @bp.route('/db-info')
 def db_info():
-    inspector = inspect(db.engine)
-    tables = inspector.get_table_names()
-    
-    html = '<h1>データベーステーブル一覧</h1>'
-    html += f'<p>テーブル数: {len(tables)}</p>'
-    html += '<ul>'
-    
-    for table in tables:
-        html += f'<li><h3>{table}</h3>'
-        html += '<table border="1"><tr><th>カラム名</th><th>タイプ</th><th>NULL可</th></tr>'
+    with current_app.app_context():
+        inspector = inspect(db.engine)
+        tables = inspector.get_table_names()
         
-        for column in inspector.get_columns(table):
-            html += f'<tr><td>{column["name"]}</td><td>{column["type"]}</td><td>{"はい" if column.get("nullable") else "いいえ"}</td></tr>'
+        html = '<h1>データベーステーブル一覧</h1>'
+        html += f'<p>テーブル数: {len(tables)}</p>'
+        html += '<ul>'
         
-        html += '</table></li>'
-    
-    html += '</ul>'
+        for table in tables:
+            html += f'<li><h3>{table}</h3>'
+            html += '<table border="1"><tr><th>カラム名</th><th>タイプ</th><th>NULL可</th></tr>'
+            
+            for column in inspector.get_columns(table):
+                html += f'<tr><td>{column["name"]}</td><td>{column["type"]}</td><td>{"はい" if column.get("nullable") else "いいえ"}</td></tr>'
+            
+            html += '</table></li>'
+        
+        html += '</ul>'
     return html
 
 @bp.route('/setup-db')
 def setup_db():
-    # 既存のテーブルを全て削除
-    db.drop_all()
-    # 新しいテーブルを作成
-    db.create_all()
+    with current_app.app_context():
+        # 既存のテーブルを全て削除
+        db.drop_all()
+        # 新しいテーブルを作成
+        db.create_all()
     return 'データベーステーブルを全て再作成しました！'
