@@ -30,3 +30,11 @@ def db_info():
     
     html += '</ul>'
     return html
+
+@bp.route('/setup-db')
+def setup_db():
+    # 既存のテーブルを全て削除
+    db.drop_all()
+    # 新しいテーブルを作成
+    db.create_all()
+    return 'データベーステーブルを全て再作成しました！'
