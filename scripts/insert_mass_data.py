@@ -969,19 +969,4 @@ def insert_mass_data():
            return False
 
 if __name__ == '__main__':
-   insert_mass_data()
-
-
-
-
-                     
-
-
-
-
-
-
-
-                 
-
-
+   insert_mass_data() 
