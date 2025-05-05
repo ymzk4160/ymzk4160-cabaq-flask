@@ -3,18 +3,43 @@ from app.extensions import db
 
 class Question(db.Model):
     __tablename__ = 'questions'
-    __table_args__ = {'extend_existing': True}
     
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(255), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    title = db.Column(db.Text, nullable=False)
     content = db.Column(db.Text, nullable=False)
-    category = db.Column(db.String(50))
+    slug = db.Column(db.String(255))
+    category_id = db.Column(db.Integer, db.ForeignKey('categories.id'))
+    sub_category_id = db.Column(db.Integer)
+    status = db.Column(db.String(30), default='published')
+    is_solved = db.Column(db.Boolean, default=False)
+    best_answer_id = db.Column(db.Integer)
+    is_public = db.Column(db.Boolean, default=True)
+    visibility = db.Column(db.String(20), default='public')
+    is_anonymous = db.Column(db.Boolean, default=False)
+    is_sticky = db.Column(db.Boolean, default=False)
+    is_featured = db.Column(db.Boolean, default=False)
+    view_count = db.Column(db.Integer, default=0)
+    unique_view_count = db.Column(db.Integer, default=0)
+    answer_count = db.Column(db.Integer, default=0)
+    reaction_count = db.Column(db.Integer, default=0)
+    helpful_count = db.Column(db.Integer, default=0)
+    thank_count = db.Column(db.Integer, default=0)
+    relate_count = db.Column(db.Integer, default=0)
+    edit_count = db.Column(db.Integer, default=0)
+    has_images = db.Column(db.Boolean, default=False)
+    images = db.Column(db.JSON)
+    last_edited_at = db.Column(db.DateTime)
+    last_edited_by = db.Column(db.Integer)
+    ip_address = db.Column(db.String(45))
+    remarks = db.Column(db.Text)
     is_deleted = db.Column(db.Boolean, default=False)
+    deleted_at = db.Column(db.DateTime)
+    deleted_by = db.Column(db.Integer)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
-    # 外部キー
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    
-    def __repr__(self):
-        return f'<Question {self.id}: {self.title}>'
+    # リレーションシップ
+    user = db.relationship('User', backref=db.backref('questions', lazy=True))
+    category = db.relationship('Category', backref=db.backref('questions', lazy=True))
+    answers = db.relationship('Answer', backref='question', lazy=True)
