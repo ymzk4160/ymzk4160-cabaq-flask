@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, current_app
+from flask import Blueprint, render_template, current_app, Flask
 from sqlalchemy import inspect
 from app.extensions import db
 
@@ -12,7 +12,11 @@ def index():
 
 @bp.route('/db-info')
 def db_info():
-    with current_app.app_context():
+    app = Flask(__name__)
+    app.config['SQLALCHEMY_DATABASE_URI'] = current_app.config['SQLALCHEMY_DATABASE_URI']
+    db.init_app(app)
+    
+    with app.app_context():
         inspector = inspect(db.engine)
         tables = inspector.get_table_names()
         
@@ -34,7 +38,11 @@ def db_info():
 
 @bp.route('/setup-db')
 def setup_db():
-    with current_app.app_context():
+    app = Flask(__name__)
+    app.config['SQLALCHEMY_DATABASE_URI'] = current_app.config['SQLALCHEMY_DATABASE_URI']
+    db.init_app(app)
+    
+    with app.app_context():
         # 既存のテーブルを全て削除
         db.drop_all()
         # 新しいテーブルを作成
