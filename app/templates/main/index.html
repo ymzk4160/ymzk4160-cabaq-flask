@@ -15,7 +15,7 @@
     });
 
     const buttons = document.querySelectorAll('.category-button');
-    buttons.forEach(btn => btn.classList.remove('bg-pink-400', 'text-white'));
+    buttons.forEach(btn => btn.classList.remove('bg-pink-400', 'text-200'));
     const activeBtn = document.querySelector(`[data-category-btn="${category}"]`);
     if (activeBtn) activeBtn.classList.add('bg-pink-400', 'text-white');
   }
