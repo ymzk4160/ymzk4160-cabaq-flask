@@ -1,88 +1,90 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
+
+{% block title %}キャバ嬢Q&A - 匿名掲示板{% endblock %}
+
+{% block head_js %}
+<script>
+  function filterCategory(category) {
+    const items = document.querySelectorAll('.qa-item');
+    items.forEach(item => {
+      if (category === 'all' || item.dataset.category === category) {
+        item.classList.remove('hidden');
+      } else {
+        item.classList.add('hidden');
+      }
+    });
+
+    const buttons = document.querySelectorAll('.category-button');
+    buttons.forEach(btn => btn.classList.remove('bg-pink-400', 'text-white'));
+    const activeBtn = document.querySelector(`[data-category-btn="${category}"]`);
+    if (activeBtn) activeBtn.classList.add('bg-pink-400', 'text-white');
+  }
+</script>
+{% endblock %}
 
 {% block content %}
-<div class="px-4 py-6 max-w-3xl mx-auto">
-  <!-- カテゴリー（シンプルな3段レイアウト） -->
-  <div class="p-2 bg-white shadow">
-    <!-- 1段目：すべてボタン -->
-    <div class="flex justify-center mb-2">
-      <button onclick="filterCategory('all')" class="category-button bg-pink-400 text-white text-sm px-4 py-1.5 rounded-full font-medium" data-category-btn="all">すべて</button>
-    </div>
-    
-    <!-- 2段目：3カテゴリー -->
-    <div class="flex justify-center gap-3 mb-2">
-      <button onclick="filterCategory('初心者')" class="category-button bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full" data-category-btn="初心者">初心者</button>
-      <button onclick="filterCategory('営業')" class="category-button bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full" data-category-btn="営業">営業</button>
-      <button onclick="filterCategory('メンタル')" class="category-button bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full" data-category-btn="メンタル">メンタル</button>
-    </div>
-    
-    <!-- 3段目：4カテゴリー -->
-    <div class="flex justify-center gap-3 mb-2">
-      <button onclick="filterCategory('出勤')" class="category-button bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full" data-category-btn="出勤">出勤</button>
-      <button onclick="filterCategory('身バレ')" class="category-button bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full" data-category-btn="身バレ">身バレ</button>
-      <button onclick="filterCategory('美容')" class="category-button bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full" data-category-btn="美容">美容</button>
-      <button onclick="filterCategory('恋愛')" class="category-button bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full" data-category-btn="恋愛">恋愛</button>
-    </div>
-    
-    <!-- 4段目：3カテゴリー -->
-    <div class="flex justify-center gap-3">
-      <button onclick="filterCategory('店不満')" class="category-button bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full" data-category-btn="店不満">店への不満</button>
-      <button onclick="filterCategory('バースデイ')" class="category-button bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full" data-category-btn="バースデイ">バースデイ</button>
-      <button onclick="filterCategory('プライベート')" class="category-button bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full" data-category-btn="プライベート">プライベート</button>
-    </div>
-  </div>
+  <!-- 会員登録案内 -->
+<section class="bg-pink-100 text-center p-4 text-sm">
+  <p class="mb-1 font-semibold">🔐 この先のQ&Aをもっと読みたい？</p>
+  <p class="mb-1">
+    簡単な会員登録で <span class="font-bold">最初の10日間は無料</span>！<br>
+    その後、初回3か月は月額 <span class="font-bold">1,000円</span>、<br>
+    以降も月額 <span class="font-bold">1,000円</span> ですべて見放題に✨
+  </p>
+  <p class="mb-1 text-xs text-gray-600">※無料会員登録は数秒で完了、支払い情報の登録は不要です。</p>
+  <p class="mb-1 text-xs text-gray-600">※継続利用ご希望の場合には、支払い情報の登録が必要です。</p>
+  <p class="mb-1 text-xs text-gray-600">※支払い情報が未登録の場合、10日後に利用不可となります。</p>
+  <button class="mt-2 bg-pink-400 hover:bg-pink-500 text-white text-sm px-6 py-2 rounded-full">
+    今すぐ無料会員登録
+  </button>
+</section>
 
-  <!-- 質問一覧 -->
-  <div class="space-y-4 mt-4">
-    {% for question in questions %}
-    <div class="bg-white rounded-lg shadow-md overflow-hidden border border-pink-100">
-      <!-- 質問内容 -->
-      <div class="p-4">
-        <div class="flex items-start">
-          <div class="flex-1">
-            <h2 class="text-lg font-semibold text-gray-800">{{ question.title }}</h2>
-            <p class="text-sm text-gray-600 mt-1">{{ question.content }}</p>
-          </div>
-        </div>
-        <div class="flex items-center justify-between mt-3">
-          <span class="inline-block bg-pink-100 text-pink-800 text-xs px-2 py-1 rounded">{{ question.category }}</span>
-          <span class="text-xs text-gray-500">回答 {{ question.answer_count }}件</span>
-        </div>
-      </div>
-      
-      <!-- 回答部分 -->
-      {% if question.answers %}
-      <div class="bg-gray-50 p-4 border-t border-pink-100">
-        {% for answer in question.answers %}
-        <div class="text-sm text-gray-700">
-          {{ answer.content }}
-        </div>
-        {% endfor %}
-      </div>
-      {% endif %}
-    </div>
-    {% endfor %}
+<!-- カテゴリー（横2段レイアウト・文字数バランス最適化） -->
+<div class="p-2 bg-white shadow">
+<!-- 1段目 -->
+    <div class="flex justify-left space-x-2 mb-2">
+    <button onclick="filterCategory('all')" class="category-button bg-pink-400 text-white text-sm px-3 py-1 rounded-full" data-category-btn="all">すべて</button>
+  </div>
+<!-- 2段目 -->
+  <div class="flex justify-center space-x-2 mb-2">
+    <button onclick="filterCategory('初心者')" class="category-button bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full" data-category-btn="初心者">初心者</button>
+    <button onclick="filterCategory('営業')" class="category-button bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full" data-category-btn="営業">営業</button>
+    <button onclick="filterCategory('出勤')" class="category-button bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full" data-category-btn="出勤">出勤</button>
+    <button onclick="filterCategory('メンタル')" class="category-button bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full" data-category-btn="メンタル">メンタル</button>
+    <button onclick="filterCategory('店不満')" class="category-button bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full" data-category-btn="店不満">店への不満</button>
+  </div>
+<!-- 3段目 -->
+  <div class="flex justify-center space-x-2">
+    <button onclick="filterCategory('身バレ')" class="category-button bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full" data-category-btn="身バレ">身バレ</button>
+    <button onclick="filterCategory('バースデイ')" class="category-button bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full" data-category-btn="バースデイ">バースデイ</button>
+    <button onclick="filterCategory('美容')" class="category-button bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full" data-category-btn="美容">美容</button>
+    <button onclick="filterCategory('恋愛')" class="category-button bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full" data-category-btn="恋愛">恋愛</button>
+    <button onclick="filterCategory('プライベート')" class="category-button bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full" data-category-btn="プライベート">プライベート</button>
   </div>
 </div>
 
-<!-- カテゴリーフィルタリングのJavaScript -->
-<script>
-function filterCategory(category) {
-  // すべてのカテゴリーボタンからアクティブクラスを削除
-  document.querySelectorAll('.category-button').forEach(btn => {
-    btn.classList.remove('bg-pink-400', 'text-white');
-    btn.classList.add('bg-pink-200');
-  });
-  
-  // クリックされたボタンをアクティブに
-  const activeBtn = document.querySelector(`[data-category-btn="${category}"]`);
-  if (activeBtn) {
-    activeBtn.classList.remove('bg-pink-200');
-    activeBtn.classList.add('bg-pink-400', 'text-white');
-  }
-  
-  // TODO: 質問のフィルタリング処理を実装
-  // 現在は静的なHTMLなので、実際のフィルタリングはサーバーサイドまたはJavaScriptで実装する必要があります
-}
-</script>
+<!-- 最新Q&Aリスト -->
+  <section class="p-3">
+    <h2 class="text-lg font-bold mb-3">📌 最新の質問（{{ questions|length }}件）</h2>
+    <div class="space-y-3">
+      {% if questions %}
+        {% for question in questions %}
+          <div class="qa-item bg-white p-3 rounded-xl shadow" data-category="{{ question.category }}">
+            <h3 class="font-semibold text-base">Q. {{ question.title }}</h3>
+            <p class="text-xs text-gray-500 mb-1">💬 回答数：{{ question.answer_count }}件</p>
+            {% if question.answers %}
+              <p class="mt-1 text-sm text-gray-800">A. {{ question.answers[0].content|truncate(50) }}</p>
+            {% else %}
+              <p class="mt-1 text-sm text-gray-500 italic">まだ回答がありません。</p>
+            {% endif %}
+          </div>
+        {% endfor %}
+      {% else %}
+        <div class="text-center py-4 bg-white rounded-xl shadow">
+          <p class="text-gray-500">まだ質問がありません。</p>
+          <button class="mt-2 bg-pink-400 hover:bg-pink-500 text-white text-sm px-6 py-2 rounded-full">最初の質問を投稿する</button>
+        </div>
+      {% endif %}
+    </div>
+  </section>
 {% endblock %}
