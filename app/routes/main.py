@@ -11,7 +11,7 @@ def index():
     """トップページ"""
     try:
         # データベースから質問を取得
-        db_questions = Question.query.order_by(Question.created_at.desc()).limit(10).all()
+        db_questions = Question.query.filter_by(is_deleted=False).order_by(Question.created_at.desc()).limit(10).all()
         
         # テンプレート用に整形
         questions = []
@@ -33,8 +33,8 @@ def index():
         
         return render_template('main/index.html', questions=questions)
     except Exception as e:
-        # エラーが発生した場合はダミーデータを使用
-        return f"データベースエラー: {str(e)}"
+        # エラーが発生した場合はエラーメッセージを表示
+        return f"<h1>データベースエラー</h1><p>{str(e)}</p>"
 
 @bp.route('/debug')
 def debug():
@@ -54,6 +54,17 @@ def debug():
         for table in tables:
             html += f"<li>{table}</li>"
         html += "</ul>"
+        
+        # Question取得テスト
+        questions = Question.query.limit(5).all()
+        if questions:
+            html += "<h2>質問データテスト</h2>"
+            html += "<ul>"
+            for q in questions:
+                html += f"<li>{q.id}: {q.title}</li>"
+            html += "</ul>"
+        else:
+            html += "<p>質問データがありません。データベースにデータを投入してください。</p>"
     except Exception as e:
         html += f"<p>エラー: {str(e)}</p>"
     
