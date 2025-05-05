@@ -2,6 +2,17 @@
 
 {% block content %}
 <div class="px-4 py-6 max-w-3xl mx-auto">
+  <!-- カテゴリータブ -->
+  <div class="category-tabs overflow-x-auto whitespace-nowrap mb-4 p-2 bg-white rounded-lg shadow">
+    <div class="flex space-x-2">
+      {% for category in categories %}
+        <a href="#" class="px-3 py-1 text-sm rounded-full bg-pink-100 text-pink-800 hover:bg-pink-200">
+          {{ category.name }}
+        </a>
+      {% endfor %}
+    </div>
+  </div>
+
   <!-- 質問一覧 -->
   <div class="space-y-4">
     {% for question in questions %}
