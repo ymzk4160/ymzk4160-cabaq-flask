@@ -39,14 +39,10 @@
   </button>
 </section>
 
-
-
-
 <!-- カテゴリー（横2段レイアウト・DB連携） -->
 <div class="p-2 bg-white shadow">
   <!-- 1段目 ─ 「すべて」ボタン -->
   <div class="flex justify-left space-x-2 mb-2">
-    <!-- ❶ 非アクティブ時は他と同じ薄ピンク／ ❷ アクティブ時は JS で濃ピンク＋白文字 -->
     <button
       onclick="filterCategory('all')"
       class="category-button bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full"
@@ -70,6 +66,70 @@
   </div>
 </div>
 
+<!-- 最新Q&Aリスト（知恵袋スタイル） -->
+<section class="p-3">
+  <h2 class="text-lg font-bold mb-3">📌 最新の質問（{{ questions|length }}件）</h2>
+  <div class="space-y-6">
+    {% if questions %}
+      {% for question in questions %}
+        <div class="qa-item bg-white p-3 rounded-xl shadow" data-category="{{ question.category }}">
+          <!-- 質問部分 -->
+          <div class="border-b pb-3 mb-3">
+            <div class="flex items-start mb-2">
+              <div class="bg-pink-100 text-pink-500 rounded-full w-6 h-6 flex items-center justify-center mr-2 mt-1 flex-shrink-0">
+                <span class="text-xs font-bold">Q</span>
+              </div>
+              <div class="flex-1">
+                <h3 class="font-semibold text-base">{{ question.title }}</h3>
+                <div class="flex justify-between text-xs text-gray-500 my-1">
+                  <span>{{ question.user_name|default('匿名ユーザー') }}さん</span>
+                  <span>{{ question.created_at|date('Y/m/d H:i') }}</span>
+                </div>
+                <p class="text-sm text-gray-700">{{ question.content }}</p>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 回答部分 -->
+          <div>
+            <p class="text-xs text-gray-500 mb-2">💬 回答数：{{ question.answer_count }}件</p>
+            {% if question.answers %}
+              {% for answer in question.answers %}
+                <div class="mb-3 {% if loop.first %}bg-yellow-50 p-2 rounded{% endif %}">
+                  <div class="flex items-start">
+                    <div class="{% if loop.first %}bg-yellow-400 text-yellow-800{% else %}bg-gray-200 text-gray-600{% endif %} rounded-full w-6 h-6 flex items-center justify-center mr-2 mt-1 flex-shrink-0">
+                      <span class="text-xs font-bold">A</span>
+                    </div>
+                    <div class="flex-1">
+                      <div class="flex justify-between w-full">
+                        <span class="text-sm font-semibold">{{ answer.user_name|default('匿名ユーザー') }}さん</span>
+                        <span class="text-xs text-gray-500">{{ answer.created_at|date('Y/m/d H:i') }}</span>
+                      </div>
+                      <p class="text-sm text-gray-700 mt-1">{{ answer.content|truncate(500) }}</p>
+                    </div>
+                  </div>
+                  {% if loop.first %}
+                    <div class="flex justify-end mt-1">
+                      <span class="text-xs text-yellow-600 font-semibold">✓ ベストアンサー</span>
+                    </div>
+                  {% endif %}
+                </div>
+              {% endfor %}
+            {% else %}
+              <p class="text-sm text-gray-500 italic">まだ回答がありません。</p>
+            {% endif %}
+          </div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <div class="text-center py-4 bg-white rounded-xl shadow">
+        <p class="text-gray-500">まだ質問がありません。</p>
+        <button class="mt-2 bg-pink-400 hover:bg-pink-500 text-white text-sm px-6 py-2 rounded-full">最初の質問を投稿する</button>
+      </div>
+    {% endif %}
+  </div>
+</section>
+
 <script>
   /* カテゴリ切替 */
   function filterCategory(category) {
@@ -92,28 +152,4 @@
   /* ページ読み込み時に「すべて」を選択状態にしておく */
   document.addEventListener('DOMContentLoaded', () => filterCategory('all'));
 </script>
-<!-- 最新Q&Aリスト -->
-<section class="p-3">
-  <h2 class="text-lg font-bold mb-3">📌 最新の質問（{{ questions|length }}件）</h2>
-  <div class="space-y-3">
-    {% if questions %}
-      {% for question in questions %}
-        <div class="qa-item bg-white p-3 rounded-xl shadow" data-category="{{ question.category }}">
-          <h3 class="font-semibold text-base">Q. {{ question.title }}</h3>
-          <p class="text-xs text-gray-500 mb-1">💬 回答数：{{ question.answer_count }}件</p>
-          {% if question.answers %}
-            <p class="mt-1 text-sm text-gray-800">A. {{ question.answers[0].content|truncate(500) }}</p>
-          {% else %}
-            <p class="mt-1 text-sm text-gray-500 italic">まだ回答がありません。</p>
-          {% endif %}
-        </div>
-      {% endfor %}
-    {% else %}
-      <div class="text-center py-4 bg-white rounded-xl shadow">
-        <p class="text-gray-500">まだ質問がありません。</p>
-        <button class="mt-2 bg-pink-400 hover:bg-pink-500 text-white text-sm px-6 py-2 rounded-full">最初の質問を投稿する</button>
-      </div>
-    {% endif %}
-  </div>
-</section>
 {% endblock %}
