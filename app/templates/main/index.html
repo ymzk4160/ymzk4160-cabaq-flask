@@ -45,7 +45,7 @@
   <div class="flex justify-left space-x-2 mb-2">
     <button
       onclick="filterCategory('all')"
-      class="category-button bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full"
+      class="category-button bg-pink-400 text-white text-sm px-3 py-1 rounded-full"
       data-category-btn="all"
     >
       すべて
@@ -82,7 +82,8 @@
               <div class="flex-1">
                 <h3 class="font-semibold text-base">{{ question.title }}</h3>
                 <div class="flex justify-between text-xs text-gray-500 my-1">
-                  <span>{{ question.username|default('匿名ユーザー') }}さん</span>
+                  <span>{{ question.user_nickname|default('匿名ユーザー') }}さん</span>
+                  <span>{{ question.created_at }}</span>
                 </div>
                 <p class="text-sm text-gray-700">{{ question.content }}</p>
               </div>
@@ -101,7 +102,8 @@
                     </div>
                     <div class="flex-1">
                       <div class="flex justify-between w-full">
-                        <span class="text-sm font-semibold">{{ answer.username|default('匿名ユーザー') }}さん</span>
+                        <span class="text-sm font-semibold">{{ answer.user_nickname|default('匿名ユーザー') }}さん</span>
+                        <span class="text-xs text-gray-500">{{ answer.created_at }}</span>
                       </div>
                       <p class="text-sm text-gray-700 mt-1">{{ answer.content|truncate(500) }}</p>
                     </div>
