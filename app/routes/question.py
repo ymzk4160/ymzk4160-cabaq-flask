@@ -1,11 +1,10 @@
 from datetime import datetime
 from app.extensions import db
-from sqlalchemy.orm import relationship
 
 class Question(db.Model):
     __tablename__ = 'questions'
     __table_args__ = {'extend_existing': True}
-    
+
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(255), nullable=False)
     content = db.Column(db.Text, nullable=False)
@@ -17,10 +16,10 @@ class Question(db.Model):
     # 外部キー
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     
-    # リレーションシップをシンプルに定義
-    user = db.relationship('User', backref=db.backref('questions', lazy='dynamic'))
-    answers = db.relationship('Answer', backref='question', lazy='dynamic')
-    category = db.relationship('Category', backref=db.backref('questions', lazy='dynamic'))
+    # リレーションシップをシンプルに文字列参照に変更
+    user = db.relationship('User', backref='questions')
+    answers = db.relationship('Answer', backref='question')
+    category = db.relationship('Category', backref='questions')
     
     def __repr__(self):
         return f'<Question {self.id}: {self.title}>'
