@@ -18,9 +18,9 @@ class User(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
-    # リレーションシップ（循環参照を避けるためシンプルに）
-    questions = relationship("Question", back_populates="user")
-    answers = relationship("Answer", back_populates="user")
+    # リレーションシップをbackrefに変更
+    # questions = db.relationship('Question', backref='user', lazy='dynamic')
+    # answers = db.relationship('Answer', backref='user', lazy='dynamic')
     
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
