@@ -82,8 +82,7 @@
               <div class="flex-1">
                 <h3 class="font-semibold text-base">{{ question.title }}</h3>
                 <div class="flex justify-between text-xs text-gray-500 my-1">
-                  <span>{{ question.user_name|default('匿名ユーザー') }}さん</span>
-                  <span>{{ question.updated_at }}</span>
+                  <span>{{ question.user.name|default('匿名ユーザー') }}さん</span>
                 </div>
                 <p class="text-sm text-gray-700">{{ question.content }}</p>
               </div>
@@ -102,8 +101,7 @@
                     </div>
                     <div class="flex-1">
                       <div class="flex justify-between w-full">
-                        <span class="text-sm font-semibold">{{ answer.user_name|default('匿名ユーザー') }}さん</span>
-                        <span class="text-xs text-gray-500">{{ answer.updated_at }}</span>
+                        <span class="text-sm font-semibold">{{ answer.user.name|default('匿名ユーザー') }}さん</span>
                       </div>
                       <p class="text-sm text-gray-700 mt-1">{{ answer.content|truncate(500) }}</p>
                     </div>
