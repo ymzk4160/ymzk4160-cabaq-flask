@@ -1,5 +1,6 @@
 from datetime import datetime
 from app.extensions import db
+from app.routes.user import User  # ★追加：Userクラスのインポート
 
 class Question(db.Model):
     __tablename__ = 'questions'
@@ -12,14 +13,13 @@ class Question(db.Model):
     is_deleted = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    
-    # 外部キー
+
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    
-    # リレーションシップをシンプルに文字列参照に変更
+
+    # リレーション
     user = db.relationship('User', backref='questions')
     answers = db.relationship('Answer', backref='question')
     category = db.relationship('Category', backref='questions')
-    
+
     def __repr__(self):
         return f'<Question {self.id}: {self.title}>'
