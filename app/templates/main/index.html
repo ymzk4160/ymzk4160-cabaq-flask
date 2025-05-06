@@ -39,17 +39,67 @@
   </button>
 </section>
 
+
+
+
 <!-- カテゴリー（横2段レイアウト・DB連携） -->
 <div class="p-2 bg-white shadow">
+  <!-- 1段目 ─ 「すべて」ボタン -->
   <div class="flex justify-left space-x-2 mb-2">
-    <button onclick="filterCategory('all')" class="category-button bg-pink-400 text-white text-sm px-3 py-1 rounded-full" data-category-btn="all">すべて</button>
+    <!-- ❶ 非アクティブ時は他と同じ薄ピンク／ ❷ アクティブ時は JS で濃ピンク＋白文字 -->
+    <button
+      onclick="filterCategory('all')"
+      class="category-button bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full"
+      data-category-btn="all"
+    >
+      すべて
+    </button>
   </div>
+
+  <!-- 2段目 ─ DB から取得したカテゴリ -->
   <div class="flex flex-wrap gap-2 justify-start">
     {% for category in categories %}
-      <button onclick="filterCategory('{{ category.name }}')" class="category-button bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full" data-category-btn="{{ category.name }}">{{ category.name }}</button>
+      <button
+        onclick="filterCategory('{{ category.name }}')"
+        class="category-button bg-pink-200 hover:bg-pink-300 text-sm px-3 py-1 rounded-full"
+        data-category-btn="{{ category.name }}"
+      >
+        {{ category.name }}
+      </button>
     {% endfor %}
   </div>
 </div>
+
+<script>
+  /* カテゴリ切替 */
+  function filterCategory(category) {
+    /* 質問の絞り込み */
+    document.querySelectorAll('.qa-item').forEach(item => {
+      item.classList.toggle(
+        'hidden',
+        category !== 'all' && item.dataset.category !== category
+      );
+    });
+
+    /* ボタンのアクティブ状態の付け替え */
+    document.querySelectorAll('.category-button').forEach(btn => {
+      btn.classList.remove('bg-pink-400', 'text-white');
+    });
+    const activeBtn = document.querySelector(`[data-category-btn="${category}"]`);
+    if (activeBtn) activeBtn.classList.add('bg-pink-400', 'text-white');
+  }
+
+  /* ページ読み込み時に「すべて」を選択状態にしておく */
+  document.addEventListener('DOMContentLoaded', () => filterCategory('all'));
+</script>
+
+
+
+
+
+
+
+
 
 <!-- 最新Q&Aリスト -->
 <section class="p-3">
