@@ -102,7 +102,7 @@
           <h3 class="font-semibold text-base">Q. {{ question.title }}</h3>
           <p class="text-xs text-gray-500 mb-1">💬 回答数：{{ question.answer_count }}件</p>
           {% if question.answers %}
-            <p class="mt-1 text-sm text-gray-800">A. {{ question.answers[0].content|truncate(300) }}</p>
+            <p class="mt-1 text-sm text-gray-800">A. {{ question.answers[0].content|truncate(500) }}</p>
           {% else %}
             <p class="mt-1 text-sm text-gray-500 italic">まだ回答がありません。</p>
           {% endif %}
