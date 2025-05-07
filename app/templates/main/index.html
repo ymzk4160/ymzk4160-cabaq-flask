@@ -19,23 +19,6 @@
     const activeBtn = document.querySelector(`[data-category-btn="${category}"]`);
     if (activeBtn) activeBtn.classList.add('bg-pink-400', 'text-white');
   }
-
-  // 回答の表示・非表示を切り替える関数 - 修正版
-  function toggleAnswer(btn) {
-    const answerPreview = btn.previousElementSibling;
-    const fullContent = btn.nextElementSibling;
-    
-    if (btn.textContent === '続きを読む') {
-      // 全文表示
-      answerPreview.textContent = fullContent.textContent;
-      btn.textContent = '折りたたむ';
-    } else {
-      // 折りたたむ
-      const shortText = fullContent.textContent.substring(0, 60) + '...';
-      answerPreview.textContent = shortText;
-      btn.textContent = '続きを読む';
-    }
-  }
 </script>
 {% endblock %}
 
@@ -115,27 +98,39 @@
           <div>
             {% if question.answers %}
               {% for answer in question.answers %}
-                <div class="mb-3 {% if loop.first %}bg-pink-100 p-2 rounded{% endif %}">
+                <div class="mb-3 {% if loop.first %}bg-blue-50 p-2 rounded{% endif %}">
                   <div class="flex items-start">
-                    <div class="{% if loop.first %}bg-pink-500 text-white{% else %}bg-gray-200 text-gray-600{% endif %} rounded-full w-6 h-6 flex items-center justify-center mr-2 mt-1 flex-shrink-0">
+                    <div class="{% if loop.first %}bg-blue-400 text-white{% else %}bg-gray-200 text-gray-600{% endif %} rounded-full w-6 h-6 flex items-center justify-center mr-2 mt-1 flex-shrink-0">
                       <span class="text-xs font-bold">A</span>
                     </div>
                     <div class="flex-1">
                       <div class="text-sm">
                         <span class="font-semibold">{{ answer.user_nickname }}さん</span>
                       </div>
-                      <div class="answer-container">
-                        <p class="text-sm text-gray-700 mt-1 answer-preview">
+                      {% if answer.content|length > 60 %}
+                        <div class="text-sm text-gray-700 mt-1" id="answer-{{ question.id }}-{{ loop.index }}">
                           {{ answer.content|truncate(60) }}
-                        </p>
-                        {% if answer.content|length > 60 %}
-                          <button class="text-xs text-pink-500 hover:text-pink-600 mt-1" onclick="toggleAnswer(this)">続きを読む</button>
-                          <div class="hidden full-content">{{ answer.content }}</div>
-                        {% endif %}
-                      </div>
+                          <button class="text-xs text-pink-500 hover:text-pink-600 ml-1" 
+                                  onclick="
+                                    var content = document.getElementById('answer-{{ question.id }}-{{ loop.index }}');
+                                    var fullText = '{{ answer.content|replace('\n', ' ')|replace('\"', '\\\\"')|safe }}';
+                                    if (this.textContent === '続きを読む') {
+                                      content.textContent = fullText;
+                                      this.textContent = '折りたたむ';
+                                    } else {
+                                      content.textContent = fullText.substring(0, 60) + '...';
+                                      this.textContent = '続きを読む';
+                                    }
+                                  ">
+                            続きを読む
+                          </button>
+                        </div>
+                      {% else %}
+                        <p class="text-sm text-gray-700 mt-1">{{ answer.content }}</p>
+                      {% endif %}
                       <div class="flex justify-between text-xs text-gray-500 mt-1">
                         {% if loop.first %}
-                          <span class="text-pink-600 font-semibold">✓ ベストアンサー</span>
+                          <span class="text-blue-600 font-semibold">✓ ベストアンサー</span>
                         {% else %}
                           <span></span>
                         {% endif %}
