@@ -117,9 +117,9 @@
           <div>
             {% if question.answers %}
               {% for answer in question.answers %}
-                <div class="mb-3 {% if loop.first %}bg-yellow-50 p-2 rounded{% endif %}">
+                <div class="mb-3 {% if loop.first %}bg-pink-50 p-2 rounded{% endif %}">
                   <div class="flex items-start">
-                    <div class="{% if loop.first %}bg-yellow-400 text-yellow-800{% else %}bg-gray-200 text-gray-600{% endif %} rounded-full w-6 h-6 flex items-center justify-center mr-2 mt-1 flex-shrink-0">
+                    <div class="{% if loop.first %}bg-pink-400 text-white{% else %}bg-gray-200 text-gray-600{% endif %} rounded-full w-6 h-6 flex items-center justify-center mr-2 mt-1 flex-shrink-0">
                       <span class="text-xs font-bold">A</span>
                     </div>
                     <div class="flex-1">
@@ -137,7 +137,7 @@
                       </div>
                       <div class="flex justify-between text-xs text-gray-500 mt-1">
                         {% if loop.first %}
-                          <span class="text-yellow-600 font-semibold">✓ ベストアンサー</span>
+                          <span class="text-pink-600 font-semibold">✓ ベストアンサー</span>
                         {% else %}
                           <span></span>
                         {% endif %}
