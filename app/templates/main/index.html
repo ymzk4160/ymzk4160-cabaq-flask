@@ -20,22 +20,20 @@
     if (activeBtn) activeBtn.classList.add('bg-pink-400', 'text-white');
   }
 
-  // 回答の表示・非表示を切り替える関数
+  // 回答の表示・非表示を切り替える関数 - 修正版
   function toggleAnswer(btn) {
-    const answerContent = btn.previousElementSibling;
+    const answerPreview = btn.previousElementSibling;
     const fullContent = btn.nextElementSibling;
     
-    if (fullContent.classList.contains('hidden')) {
+    if (btn.textContent === '続きを読む') {
       // 全文表示
-      answerContent.innerHTML = fullContent.innerHTML;
+      answerPreview.textContent = fullContent.textContent;
       btn.textContent = '折りたたむ';
-      fullContent.classList.remove('hidden');
     } else {
       // 折りたたむ
-      const shortText = fullContent.innerHTML.substring(0, 60) + '...';
-      answerContent.innerHTML = shortText;
+      const shortText = fullContent.textContent.substring(0, 60) + '...';
+      answerPreview.textContent = shortText;
       btn.textContent = '続きを読む';
-      fullContent.classList.add('hidden');
     }
   }
 </script>
@@ -117,9 +115,9 @@
           <div>
             {% if question.answers %}
               {% for answer in question.answers %}
-                <div class="mb-3 {% if loop.first %}bg-pink-50 p-2 rounded{% endif %}">
+                <div class="mb-3 {% if loop.first %}bg-pink-100 p-2 rounded{% endif %}">
                   <div class="flex items-start">
-                    <div class="{% if loop.first %}bg-pink-400 text-white{% else %}bg-gray-200 text-gray-600{% endif %} rounded-full w-6 h-6 flex items-center justify-center mr-2 mt-1 flex-shrink-0">
+                    <div class="{% if loop.first %}bg-pink-500 text-white{% else %}bg-gray-200 text-gray-600{% endif %} rounded-full w-6 h-6 flex items-center justify-center mr-2 mt-1 flex-shrink-0">
                       <span class="text-xs font-bold">A</span>
                     </div>
                     <div class="flex-1">
@@ -131,7 +129,7 @@
                           {{ answer.content|truncate(60) }}
                         </p>
                         {% if answer.content|length > 60 %}
-                          <button class="text-xs text-pink-500 mt-1" onclick="toggleAnswer(this)">続きを読む</button>
+                          <button class="text-xs text-pink-500 hover:text-pink-600 mt-1" onclick="toggleAnswer(this)">続きを読む</button>
                           <div class="hidden full-content">{{ answer.content }}</div>
                         {% endif %}
                       </div>
