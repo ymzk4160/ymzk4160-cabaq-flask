@@ -90,7 +90,7 @@
             </div>
             <div class="flex justify-between text-xs text-gray-500 mt-2">
               <span>回答数：{{ question.answer_count }}件</span>
-              <span>{{ question.created_at }}</span>
+              <span>{{ question.updated_at }}</span>
             </div>
           </div>
           
@@ -114,7 +114,7 @@
                         {% else %}
                           <span></span>
                         {% endif %}
-                        <span>{{ answer.created_at }}</span>
+                        <span>{{ answer.updated_at }}</span>
                       </div>
                     </div>
                   </div>
@@ -134,6 +134,7 @@
     {% endif %}
   </div>
 </section>
+
 
 <script>
   /* カテゴリ切替 */
