@@ -32,7 +32,7 @@
       fullContent.classList.remove('hidden');
     } else {
       // 折りたたむ
-      const shortText = fullContent.innerHTML.substring(0, 150) + '...';
+      const shortText = fullContent.innerHTML.substring(0, 100) + '...';
       answerContent.innerHTML = shortText;
       btn.textContent = '続きを読む';
       fullContent.classList.add('hidden');
