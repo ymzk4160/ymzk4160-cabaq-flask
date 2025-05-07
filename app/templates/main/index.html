@@ -19,6 +19,25 @@
     const activeBtn = document.querySelector(`[data-category-btn="${category}"]`);
     if (activeBtn) activeBtn.classList.add('bg-pink-400', 'text-white');
   }
+
+  // 回答の表示・非表示を切り替える関数
+  function toggleAnswer(btn) {
+    const answerContent = btn.previousElementSibling;
+    const fullContent = btn.nextElementSibling;
+    
+    if (fullContent.classList.contains('hidden')) {
+      // 全文表示
+      answerContent.innerHTML = fullContent.innerHTML;
+      btn.textContent = '折りたたむ';
+      fullContent.classList.remove('hidden');
+    } else {
+      // 折りたたむ
+      const shortText = fullContent.innerHTML.substring(0, 150) + '...';
+      answerContent.innerHTML = shortText;
+      btn.textContent = '続きを読む';
+      fullContent.classList.add('hidden');
+    }
+  }
 </script>
 {% endblock %}
 
@@ -107,7 +126,15 @@
                       <div class="text-sm">
                         <span class="font-semibold">{{ answer.user_nickname }}さん</span>
                       </div>
-                      <p class="text-sm text-gray-700 mt-1">{{ answer.content|truncate(500) }}</p>
+                      <div class="answer-container">
+                        <p class="text-sm text-gray-700 mt-1 answer-preview">
+                          {{ answer.content|truncate(150) }}
+                        </p>
+                        {% if answer.content|length > 150 %}
+                          <button class="text-xs text-blue-500 mt-1" onclick="toggleAnswer(this)">続きを読む</button>
+                          <div class="hidden full-content">{{ answer.content }}</div>
+                        {% endif %}
+                      </div>
                       <div class="flex justify-between text-xs text-gray-500 mt-1">
                         {% if loop.first %}
                           <span class="text-yellow-600 font-semibold">✓ ベストアンサー</span>
