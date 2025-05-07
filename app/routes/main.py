@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, current_app
 from app.models.question import Question
 from app.models.answer import Answer
 from app.models.category import Category
+from app.models.user import User
 from app.extensions import db
 
 bp = Blueprint('main', __name__)
@@ -20,16 +21,37 @@ def index():
         questions = []
         for q in db_questions:
             category_name = q.category.name if q.category else "未分類"
+            
+            # ユーザー情報を取得
+            user = User.query.get(q.user_id)
+            user_nickname = user.nickname if user else "匿名"
+            
+            # 日付をフォーマット
+            updated_at = q.updated_at.strftime('%Y/%m/%d %H:%M') if q.updated_at else ''
+            
             answers_list = []
             for a in q.answers:
                 if not a.is_deleted:
-                    answers_list.append({'content': a.content})
+                    # 回答者の情報を取得
+                    answer_user = User.query.get(a.user_id)
+                    answer_user_nickname = answer_user.nickname if answer_user else "匿名"
+                    
+                    # 回答の日付をフォーマット
+                    answer_updated_at = a.updated_at.strftime('%Y/%m/%d %H:%M') if a.updated_at else ''
+                    
+                    answers_list.append({
+                        'content': a.content,
+                        'user_nickname': answer_user_nickname,
+                        'updated_at': answer_updated_at
+                    })
             
             questions.append({
                 'id': q.id,
                 'title': q.title,
                 'content': q.content,
                 'category': category_name,
+                'user_nickname': user_nickname,
+                'updated_at': updated_at,
                 'answer_count': len(answers_list),
                 'answers': answers_list
             })
