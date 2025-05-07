@@ -19,6 +19,29 @@
     const activeBtn = document.querySelector(`[data-category-btn="${category}"]`);
     if (activeBtn) activeBtn.classList.add('bg-pink-400', 'text-white');
   }
+
+  // 回答の折りたたみ・展開機能
+  document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.toggle-answer').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        const answerId = this.getAttribute('data-answer-id');
+        const shortText = document.getElementById('short-' + answerId);
+        const fullText = document.getElementById('full-' + answerId);
+        
+        if (shortText.classList.contains('hidden')) {
+          // 折りたたむ
+          shortText.classList.remove('hidden');
+          fullText.classList.add('hidden');
+          this.textContent = '続きを読む';
+        } else {
+          // 展開する
+          shortText.classList.add('hidden');
+          fullText.classList.remove('hidden');
+          this.textContent = '折りたたむ';
+        }
+      });
+    });
+  });
 </script>
 {% endblock %}
 
@@ -98,9 +121,9 @@
           <div>
             {% if question.answers %}
               {% for answer in question.answers %}
-                <div class="mb-3 {% if loop.first %}bg-blue-50 p-2 rounded{% endif %}">
+                <div class="mb-3 {% if loop.first %}bg-yellow-50 p-2 rounded{% endif %}">
                   <div class="flex items-start">
-                    <div class="{% if loop.first %}bg-blue-400 text-white{% else %}bg-gray-200 text-gray-600{% endif %} rounded-full w-6 h-6 flex items-center justify-center mr-2 mt-1 flex-shrink-0">
+                    <div class="{% if loop.first %}bg-yellow-400 text-yellow-800{% else %}bg-gray-200 text-gray-600{% endif %} rounded-full w-6 h-6 flex items-center justify-center mr-2 mt-1 flex-shrink-0">
                       <span class="text-xs font-bold">A</span>
                     </div>
                     <div class="flex-1">
@@ -108,29 +131,30 @@
                         <span class="font-semibold">{{ answer.user_nickname }}さん</span>
                       </div>
                       {% if answer.content|length > 60 %}
-                        <div class="text-sm text-gray-700 mt-1" id="answer-{{ question.id }}-{{ loop.index }}">
-                          {{ answer.content|truncate(60) }}
-                          <button class="text-xs text-pink-500 hover:text-pink-600 ml-1" 
-                                  onclick="
-                                    var content = document.getElementById('answer-{{ question.id }}-{{ loop.index }}');
-                                    var fullText = '{{ answer.content|replace('\n', ' ')|replace('\"', '\\\\"')|safe }}';
-                                    if (this.textContent === '続きを読む') {
-                                      content.textContent = fullText;
-                                      this.textContent = '折りたたむ';
-                                    } else {
-                                      content.textContent = fullText.substring(0, 60) + '...';
-                                      this.textContent = '続きを読む';
-                                    }
-                                  ">
-                            続きを読む
-                          </button>
+                        <div class="answer-content">
+                          <!-- 短いテキスト（最初に表示） -->
+                          <p id="short-q{{ question.id }}a{{ loop.index }}" class="text-sm text-gray-700 mt-1">
+                            {{ answer.content[:60] }}...
+                          </p>
+                          <!-- 全文（最初は非表示） -->
+                          <p id="full-q{{ question.id }}a{{ loop.index }}" class="text-sm text-gray-700 mt-1 hidden">
+                            {{ answer.content }}
+                          </p>
+                          <!-- ボタン -->
+                          <div class="text-right">
+                            <button 
+                              class="text-xs text-pink-500 hover:text-pink-600 mt-1 toggle-answer" 
+                              data-answer-id="q{{ question.id }}a{{ loop.index }}">
+                              続きを読む
+                            </button>
+                          </div>
                         </div>
                       {% else %}
                         <p class="text-sm text-gray-700 mt-1">{{ answer.content }}</p>
                       {% endif %}
                       <div class="flex justify-between text-xs text-gray-500 mt-1">
                         {% if loop.first %}
-                          <span class="text-blue-600 font-semibold">✓ ベストアンサー</span>
+                          <span class="text-yellow-600 font-semibold">✓ ベストアンサー</span>
                         {% else %}
                           <span></span>
                         {% endif %}
