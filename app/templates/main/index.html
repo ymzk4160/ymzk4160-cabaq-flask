@@ -32,7 +32,7 @@
       fullContent.classList.remove('hidden');
     } else {
       // 折りたたむ
-      const shortText = fullContent.innerHTML.substring(0, 50) + '...';
+      const shortText = fullContent.innerHTML.substring(0, 100) + '...';
       answerContent.innerHTML = shortText;
       btn.textContent = '続きを読む';
       fullContent.classList.add('hidden');
@@ -128,7 +128,7 @@
                       </div>
                       <div class="answer-container">
                         <p class="text-sm text-gray-700 mt-1 answer-preview">
-                          {{ answer.content|truncate(150) }}
+                          {{ answer.content|truncate(100) }}
                         </p>
                         {% if answer.content|length > 150 %}
                           <button class="text-xs text-blue-500 mt-1" onclick="toggleAnswer(this)">続きを読む</button>
