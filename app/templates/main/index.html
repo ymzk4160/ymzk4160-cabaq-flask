@@ -117,9 +117,9 @@
           <div>
             {% if question.answers %}
               {% for answer in question.answers %}
-                <div class="mb-3 {% if loop.first %}bg-yellow-50 p-2 rounded{% endif %}">
+                <div class="mb-3 {% if loop.first %}bg-yellow-50 p-2 rounded{% else %}bg-blue-50 p-2 rounded{% endif %}">
                   <div class="flex items-start">
-                    <div class="{% if loop.first %}bg-yellow-400 text-yellow-800{% else %}bg-gray-200 text-gray-600{% endif %} rounded-full w-6 h-6 flex items-center justify-center mr-2 mt-1 flex-shrink-0">
+                    <div class="{% if loop.first %}bg-yellow-400 text-yellow-800{% else %}bg-blue-400 text-blue-800{% endif %} rounded-full w-6 h-6 flex items-center justify-center mr-2 mt-1 flex-shrink-0">
                       <span class="text-xs font-bold">A</span>
                     </div>
                     <div class="flex-1">
@@ -130,7 +130,7 @@
                         <p class="text-sm text-gray-700 mt-1 answer-preview">
                           {{ answer.content|truncate(60) }}
                         </p>
-                        {% if answer.content|length > 150 %}
+                        {% if answer.content|length > 60 %}
                           <button class="text-xs text-blue-500 mt-1" onclick="toggleAnswer(this)">続きを読む</button>
                           <div class="hidden full-content">{{ answer.content }}</div>
                         {% endif %}
