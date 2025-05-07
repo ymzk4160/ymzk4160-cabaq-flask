@@ -66,6 +66,7 @@
   </div>
 </div>
 
+
 <!-- 最新Q&Aリスト（知恵袋スタイル） -->
 <section class="p-3">
   <h2 class="text-lg font-bold mb-3">📌 最新の質問（{{ questions|length }}件）</h2>
@@ -75,24 +76,26 @@
         <div class="qa-item bg-white p-3 rounded-xl shadow" data-category="{{ question.category }}">
           <!-- 質問部分 -->
           <div class="border-b pb-3 mb-3">
-            <div class="flex items-start mb-2">
+            <div class="flex items-start">
               <div class="bg-pink-100 text-pink-500 rounded-full w-6 h-6 flex items-center justify-center mr-2 mt-1 flex-shrink-0">
                 <span class="text-xs font-bold">Q</span>
               </div>
               <div class="flex-1">
                 <h3 class="font-semibold text-base">{{ question.title }}</h3>
-                <div class="flex justify-between text-xs text-gray-500 my-1">
-                  <span>{{ question.user_nickname|default('匿名ユーザー') }}さん</span>
-                  <span>{{ question.created_at }}</span>
+                <div class="text-xs text-gray-500 my-1">
+                  <p>{{ question.user.nickname|default('匿名ユーザー') }}さん</p>
                 </div>
                 <p class="text-sm text-gray-700">{{ question.content }}</p>
               </div>
+            </div>
+            <div class="flex justify-between text-xs text-gray-500 mt-2">
+              <span>回答数：{{ question.answer_count }}件</span>
+              <span>{{ question.created_at }}</span>
             </div>
           </div>
           
           <!-- 回答部分 -->
           <div>
-            <p class="text-xs text-gray-500 mb-2">💬 回答数：{{ question.answer_count }}件</p>
             {% if question.answers %}
               {% for answer in question.answers %}
                 <div class="mb-3 {% if loop.first %}bg-yellow-50 p-2 rounded{% endif %}">
@@ -101,18 +104,20 @@
                       <span class="text-xs font-bold">A</span>
                     </div>
                     <div class="flex-1">
-                      <div class="flex justify-between w-full">
-                        <span class="text-sm font-semibold">{{ answer.user_nickname|default('匿名ユーザー') }}さん</span>
-                        <span class="text-xs text-gray-500">{{ answer.created_at }}</span>
+                      <div class="text-sm">
+                        <span class="font-semibold">{{ answer.user.nickname|default('匿名ユーザー') }}さん</span>
                       </div>
                       <p class="text-sm text-gray-700 mt-1">{{ answer.content|truncate(500) }}</p>
+                      <div class="flex justify-between text-xs text-gray-500 mt-1">
+                        {% if loop.first %}
+                          <span class="text-yellow-600 font-semibold">✓ ベストアンサー</span>
+                        {% else %}
+                          <span></span>
+                        {% endif %}
+                        <span>{{ answer.created_at }}</span>
+                      </div>
                     </div>
                   </div>
-                  {% if loop.first %}
-                    <div class="flex justify-end mt-1">
-                      <span class="text-xs text-yellow-600 font-semibold">✓ ベストアンサー</span>
-                    </div>
-                  {% endif %}
                 </div>
               {% endfor %}
             {% else %}
@@ -129,6 +134,7 @@
     {% endif %}
   </div>
 </section>
+
 
 <script>
   /* カテゴリ切替 */
