@@ -1,6 +1,7 @@
 import os
 
 class Config:
-    # ホスト名を完全な形式で指定
-    SQLALCHEMY_DATABASE_URI = 'postgresql://neondb_owner:npg_ueQ9V4yPMnU0@ep-late-sky-a1w66gtw-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require'
+    SQLALCHEMY_DATABASE_URI = os.environ.get('SQLALCHEMY_DATABASE_URI')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    FLASK_DEBUG = os.environ.get('FLASK_DEBUG', 0)
+    SECRET_KEY = os.environ.get('SECRET_KEY', 'fallback-secret')
